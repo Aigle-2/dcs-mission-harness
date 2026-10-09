@@ -74,6 +74,8 @@ def validate(kind: str, data: dict) -> list[dict]:
         if len(topics) != len(set(topics)) or not required_topics.issubset(topics):
             errors.append({"code": "DESIGN_TOPICS_REQUIRED_ONCE", "location": ["design_decisions"]})
         configuration = data["configuration"]
+        nav_errors = validate('navigation', data['navigation'])
+        errors.extend({**e, 'location': ['navigation', *e['location']]} for e in nav_errors)
         support = data["support_flights"]
         groups = [flight["group"] for flight in support]
         if len(set(groups)) != len(groups):
@@ -89,7 +91,7 @@ def validate(kind: str, data: dict) -> list[dict]:
         if configuration["ai_skill_source"] == "default-policy" and configuration["ai_skill"] != "High":
             errors.append({"code": "VETERAN_DEFAULT_REQUIRED", "location": ["configuration", "ai_skill"]})
         local_ids = {c["id"] for c in data["criteria"] if c["level"] == "local"}
-        required_checks = {"UNIT-TYPES", "AIRCRAFT-LOADOUTS", "AI-SKILL"}
+        required_checks = {"UNIT-TYPES", "AIRCRAFT-LOADOUTS", "AI-SKILL", "NAVIGATION"}
         if configuration["carrier_present"]:
             required_checks.update({"CARRIER-GROUP", "CARRIER-PLACEMENT"})
         if configuration["awacs_present"]:
@@ -124,6 +126,16 @@ def validate(kind: str, data: dict) -> list[dict]:
         if "plan" in comm:
             errors.extend({**error, "location": ["communications", "plan", *error["location"]]}
                           for error in validate("comm-plan", comm["plan"]))
+            if comm['plan'].get('navigation') != data['navigation']:
+                errors.append({'code': 'COMM_NAVIGATION_MISMATCH', 'location': ['communications', 'plan', 'navigation']})
+        if not nav_errors:
+            nav = data['navigation']
+            if configuration['carrier_present'] and not nav['naval_systems']:
+                errors.append({'code': 'NAVAL_SYSTEMS_REQUIRED', 'location': ['navigation', 'naval_systems']})
+            active_nav = bool(nav['tacan'] or nav['yardstick'] or any(
+                ship[s]['decision'] == 'enabled' for ship in nav['naval_systems'] for s in ('icls', 'datalink')))
+            if active_nav and not any(c['id'] == 'NAVIGATION-RECEPTION' and c['level'] == 'client' for c in data['criteria']):
+                errors.append({'code': 'NAVIGATION_CLIENT_CRITERION_REQUIRED', 'location': ['criteria']})
         if comm["decision"] == "enabled":
             local_ids = {c["id"] for c in data["criteria"] if c["level"] == "local"}
             if not {"COMM-PRESETS", "COMM-FREQUENCIES", "COMM-BRIEFING", "COMM-KNEEBOARD"}.issubset(local_ids):
@@ -131,6 +143,12 @@ def validate(kind: str, data: dict) -> list[dict]:
             if not any(c["id"] == "COMM-DOCS-VISIBLE" and c["level"] == "client" for c in data["criteria"]):
                 errors.append({"code": "COMM_DOCUMENT_CLIENT_CRITERION_REQUIRED", "location": ["criteria"]})
     if kind == "comm-plan" and not errors:
+        nav_errors = validate('navigation', data['navigation'])
+        errors.extend({**e, 'location': ['navigation', *e['location']]} for e in nav_errors)
+        if not nav_errors:
+            nav_groups = {c['group'] for c in data['navigation']['callsigns']}
+            if not {r['group'] for r in data['radio_inventory']}.issubset(nav_groups):
+                errors.append({'code': 'COMM_CALLSIGN_COVERAGE_REQUIRED', 'location': ['navigation', 'callsigns']})
         net_ids = [net["id"] for net in data["nets"]]
         assignment_ids = [item["group"] for item in data["assignments"]]
         preset_ids = [(item["group"], item["radio"], item["channel"]) for item in data["presets"]]
@@ -145,6 +163,9 @@ def validate(kind: str, data: dict) -> list[dict]:
             errors.append({"code": "COMPLETE_RADIO_TIMELINE_REQUIRED", "location": ["radio_usage"]})
         if any((item["group"], item["radio"]) not in inventory_ids for item in data["presets"]):
             errors.append({"code": "RADIO_INVENTORY_REQUIRED", "location": ["presets"]})
+    if kind == 'navigation' and not errors:
+        from .navigation import findings
+        errors.extend(findings(data))
     return errors
 
 

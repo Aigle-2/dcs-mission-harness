@@ -1,6 +1,6 @@
 # Mission configuration and DCS feedback
 
-Functional-spec 1.5 includes recorded aircraft/loadout, battlegroup and placement
+Functional-spec 1.6 includes recorded aircraft/loadout, battlegroup and placement
 decisions, explicit carrier/AWACS presence and an AI skill policy. Proposed choices
 block registration. Carrier choices cannot be marked inapplicable when a carrier
 is present. Aircraft/loadout review is mandatory, including for unarmed training.
@@ -29,13 +29,12 @@ assumptions; that is not a way to conceal a mission-setting proposal.
 
 `mission review --run <id> --file <spec>` writes a private
 `functional-spec.review.md` appendix with derived tags, choices, sources and
-evidence for design topics, support profiles, communications and liveries.
+evidence for design topics, navigation, support profiles, communications and liveries.
 Include the appendix in the final readable spec alongside full plan details.
 Review generation can run with proposed choices, leaves the run in
 SPECIFICATION_PENDING, and does not imply acceptance or a human reply. The
 command preserves numbered appendices under the private run's `reviews/` folder.
-The
-schema checks the records, not their truth; the agent must keep every selected
+The schema checks the records, not their truth; the agent must keep every selected
 mission parameter represented and never manufacture confirmation evidence.
 
 Offer aircraft livery selection, including keeping defaults. The `liveries`
@@ -78,6 +77,7 @@ table and submit hash-bound evidence. Archive integrity alone is insufficient.
 | AIRCRAFT-LOADOUTS | Every flight has the reviewed variant, count, roles, per-station CLSIDs, fuel and countermeasures. Verify pylon compatibility against the installed module. Empty pylons pass only when reviewed as clean. |
 | AIRCRAFT-LIVERIES | Compare saved per-unit livery IDs/defaults with the reviewed selections, including unit overrides; verify aircraft/country and installed skin availability. |
 | AI-SKILL | Compare every AI unit with the default `High` or its reviewed override; preserve Client/Player skills. |
+| NAVIGATION | Compare saved TACAN/ICLS/datalink tasks and resolved callsigns with the reviewed navigation plan; verify module capability and yardstick crew instructions. See [navigation](navigation.md). |
 | CARRIER-GROUP | Match reviewed escort types/counts, coalition, spacing and route behavior; a solo carrier requires an explicit user choice. |
 | CARRIER-PLACEMENT | Match reviewed start area, distance, route and heading. Check water/coast clearance using available terrain data or mark that part pending DCS inspection. |
 | AWACS-ORBIT | Verify launch platform, climb route, station waypoint and nested Orbit task, altitude/reference, speed units, pattern and racetrack geometry against the reviewed plan. |

@@ -37,7 +37,7 @@ or a secret manager. See [publication boundaries](docs/privacy.md).
 
 ```text
 dcs-harness doctor
-dcs-harness validate --kind mission|profile|lesson|issue|publication|functional-spec|verification|comm-plan --file <document>
+dcs-harness validate --kind mission|profile|lesson|issue|publication|functional-spec|verification|comm-plan|navigation --file <document>
 dcs-harness validate --kind mission --file <document> --profile <profile>
 dcs-harness miz check --file <mission.miz>
 dcs-harness lua check --file <script.lua>
@@ -75,7 +75,7 @@ In the final readable spec, agent-selected and delegated choices use `[Proposed]
 user-supplied/confirmed choices use `[Decided]`. Additional parameter decisions
 are recorded as `parameter:<slug>` topics and block registration until confirmed.
 `mission review` generates a private labeled appendix without accepting the spec.
-Functional-spec version 1.5 requires user decisions on communications,
+Functional-spec version 1.6 requires user decisions on communications,
 support aircraft/launch platform, air defence and victory conditions. Proposed
 choices block the transition. For a comm-plan, first list each radio's compatible
 bands, then show active frequencies over mission phases. The implementation
@@ -92,6 +92,9 @@ areas; tankers also define model, refueling system and receiver types. Proposed
 support profiles block spec registration until reviewed.
 Enabled comm-plans must also be included in the in-game briefing and embedded
 kneeboards, with mandatory local content checks and client readability checks.
+Navigation records TACAN, yardstick, flight callsigns and applicable naval
+ICLS/datalink; comm-plan 1.1 embeds the same record for briefing/kneeboards.
+See [navigation](docs/navigation.md) for conventions and validation boundaries.
 Earlier specs need review in a new run before further work.
 Keep the source artifact outside the run's reserved `mission.miz` destination.
 

@@ -1,4 +1,4 @@
-schema_version: "1.5"
+schema_version: "1.6"
 classification: public-approved
 mission:
   schema_version: "1.0"
@@ -23,6 +23,15 @@ constraints: [No external mods are required.]
 assumptions: [This is a synthetic example rather than a runtime-validated mission.]
 open_questions: []
 support_flights: []
+navigation:
+  schema_version: "1.0"
+  status: confirmed
+  source: user-request
+  evidence: Synthetic user requested DCS default callsigns without navigation beacons.
+  tacan: []
+  yardstick: []
+  callsigns: [{group: SYNTHETIC, aircraft: Su-25T, mode: dcs-default}]
+  naval_systems: []
 liveries:
   decision: default
   source: user-confirmation
@@ -44,6 +53,7 @@ communications:
   source: user-confirmation
   evidence: Synthetic user declined a comm-plan after being asked.
 criteria:
+  - {id: NAVIGATION, statement: Flight callsigns resolve to valid DCS defaults without unreviewed beacons., level: local}
   - {id: AIRCRAFT-LIVERIES, statement: Aircraft keep default liveries without unreviewed overrides., level: local}
   - {id: UNIT-TYPES, statement: All unit type identifiers match a verified installation catalog., level: local}
   - {id: AIRCRAFT-LOADOUTS, statement: Both aircraft have the approved clean pylons and full internal fuel., level: local}

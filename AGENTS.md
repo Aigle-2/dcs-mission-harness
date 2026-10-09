@@ -44,6 +44,10 @@ Specs define cruise/mission altitudes and orbit areas for AWACS/tankers, plus
 tanker models and refueling compatibility. Review support profiles before build.
 Include each enabled comm-plan in the in-game briefing and mission-embedded
 kneeboards for playable aircraft. Verify consistency and in-cockpit readability.
+Design TACAN/yardstick, callsigns and applicable naval ICLS/datalink together.
+Use X for ground/ships, Y for airborne beacons, and a 63-channel yardstick offset.
+Unspecified callsigns use actual DCS defaults. Include navigation in the comm-plan,
+briefing and kneeboards; review agent choices and verify module capabilities.
 See docs/mission-quality.md for checks and handling user feedback after a DCS test.
 
 ## Structured GitHub issues

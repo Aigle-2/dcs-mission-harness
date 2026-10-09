@@ -1,6 +1,6 @@
 # Communications and design review
 
-Functional specs use version 1.5. Support aircraft and launch platform, air
+Functional specs use version 1.6. Support aircraft and launch platform, air
 defence composition, and victory/failure conditions need recorded user choices.
 An explicit request already supplies a choice; an agent's proposal does not.
 Features absent from the scenario may be marked not applicable. Ask whether a
@@ -17,8 +17,15 @@ limits, tuning steps and primary source. Distinguish real hardware, the DCS
 module and the adapter's verified subset. Then draw a matrix of ordered mission
 phases against aircraft/radios. One radio has one active mission net per phase;
 presets are stored choices. Record any listening gap during frequency changes.
+Comm-plan 1.1 also includes the spec's identical `navigation` record: TACAN,
+yardstick, callsigns and applicable naval ICLS/datalink. See [navigation](navigation.md).
 The inventory and timeline are mandatory in the comm-plan schema. AI support
 and ships receive group/unit frequencies, not invented player-radio controls.
+
+The radio adapter applies/checks voice frequencies and presets only. Navigation
+tasks, callsigns and yardstick configuration require the builder's separate
+NAVIGATION checks and client validation; accepting a voice plan does not certify
+those systems.
 
 `dcs_harness.communications.apply_plan(mission_table, plan)` returns a copy of
 an already parsed DCS mission table with group frequencies, ship frequencies,
@@ -61,8 +68,10 @@ SRS operation require client/runtime checks; local table checks cannot certify t
 Every enabled comm-plan must appear in the DCS briefing and in mission-embedded
 kneeboard images for all playable aircraft types. Generate both from the same
 accepted plan used to configure radios. Include nets/frequencies in MHz,
-modulation, flight/support assignments, per-aircraft preset numbers and the
-phase-by-radio schedule, with manual selections and listening gaps. Label each
+modulation, flight/support assignments, per-aircraft preset numbers,
+TACAN channels/bands/idents, yardstick pairs and leader/wingman identities,
+resolved callsigns, and applicable ship ICLS channels/datalink frequencies. Include
+the phase-by-radio schedule, with manual selections and listening gaps. Label each
 flight so two flights of the same aircraft type can identify their own presets.
 Preserve the existing scenario briefing when adding communications.
 

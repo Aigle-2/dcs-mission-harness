@@ -23,6 +23,10 @@ def decision_review(spec: dict) -> tuple[str, int]:
 
     for item in spec['design_decisions']:
         add(item['topic'], item['choice'], item['status'], item['source'], item['evidence'])
+    nav = spec['navigation']
+    from .navigation import review_choices
+    for kind, choice in review_choices(nav):
+        add(kind, choice, nav['status'], nav['source'], nav['evidence'])
     for flight in spec['support_flights']:
         cruise, station = flight['cruise_altitude'], flight['mission_altitude']
         choice = (f"{flight['aircraft']}; croisière {cruise['value']} {cruise['unit']} MSL; "

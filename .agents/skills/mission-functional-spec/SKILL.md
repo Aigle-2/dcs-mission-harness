@@ -157,10 +157,33 @@ Use `docs/communications.md` for the current adapter's limits and implementation
 Add local criteria `COMM-PRESETS` and `COMM-FREQUENCIES`, plus client audio checks.
 Keep first presets consistent with flight frequency to avoid DCS overwrites.
 
+During design also define `navigation`: TACAN stations with exact channel/band
+and ident, yardstick pairs, callsigns for every flight, and ICLS/datalink settings
+for ships that use them. Use X for terrestrial/naval beacons and Y for airborne
+beacons as this harness's convention, not a universal hardware restriction.
+For yardstick use Y with exactly 63 channels between leader and wingmen, e.g.
+leader 3Y / wingmen 66Y. Verify A/A TACAN support for each participating variant,
+identify the actual leader/wingmen, and explain when crews switch from yardstick
+to tanker/carrier TACAN; do not promise concurrent tracking on one receiver.
+Ask about flight callsigns; when unspecified use `dcs-default`, resolve the actual
+valid DCS values during build and include those values in briefing/kneeboards.
+Do not invent NATO names for aircraft/countries with different callsign formats.
+For each relevant ship review ICLS channel and the exact datalink system plus
+tunable frequency when applicable. Explicitly record pending/not-applicable
+capabilities instead of assigning ICLS or Link-4 to every ship. Verify per-module
+compatibility and frequency limits; Link-4 must not be confused with voice nets
+or Link-16 network settings. Unsupported settings remain BLOCKED.
+Agent-selected navigation values remain `[Proposed]` until reviewed. Defaults for
+unspecified callsigns are authorized by this policy; no invented callsign choice
+needs to be presented as user-confirmed. Keep `navigation` identical in the spec
+and enabled comm-plan. Add local criterion `NAVIGATION` and, when beacons,
+yardstick or naval systems are present, client criterion `NAVIGATION-RECEPTION`.
+
 For every enabled comm-plan, require its inclusion in the in-game mission briefing
 and mission-embedded kneeboard pages for every playable aircraft type. Generate
 both from the accepted plan used for radio configuration: nets, MHz/AM/FM,
-flight/support assignments, aircraft-specific preset numbers and radio selections
+flight/support assignments and callsigns, TACAN/yardstick channels and idents,
+naval ICLS/datalink settings, aircraft-specific presets and radio selections
 by mission phase. Label flight-specific information clearly when several flights
 share an aircraft type. Include manual switching instructions and listening gaps.
 Standalone Markdown/PDF files do not satisfy in-game delivery. Preserve existing

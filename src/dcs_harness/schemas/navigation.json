@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "status", "source", "evidence", "tacan", "yardstick", "callsigns", "naval_systems"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "status": {"enum": ["proposed", "confirmed"]},
+    "source": {"enum": ["agent-proposal", "user-request", "user-confirmation"]},
+    "evidence": {"type": "string", "minLength": 10},
+    "tacan": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["station", "platform", "channel", "band", "ident"],
+      "properties": {
+        "station": {"type": "string", "minLength": 1},
+        "platform": {"enum": ["ground", "ship", "aircraft"]},
+        "channel": {"type": "integer", "minimum": 1, "maximum": 126},
+        "band": {"enum": ["X", "Y"]},
+        "ident": {"type": "string", "minLength": 1, "maxLength": 3}
+      }
+    }},
+    "yardstick": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["group", "leader", "wingmen", "leader_channel", "wingman_channel", "band"],
+      "properties": {
+        "group": {"type": "string", "minLength": 1},
+        "leader": {"type": "string", "minLength": 1},
+        "wingmen": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "leader_channel": {"type": "integer", "minimum": 1, "maximum": 126},
+        "wingman_channel": {"type": "integer", "minimum": 1, "maximum": 126},
+        "band": {"const": "Y"}
+      }
+    }},
+    "callsigns": {"type": "array", "minItems": 1, "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["group", "aircraft", "mode"],
+      "properties": {
+        "group": {"type": "string", "minLength": 1},
+        "aircraft": {"type": "string", "minLength": 1},
+        "mode": {"enum": ["dcs-default", "custom"]},
+        "name": {"type": "string", "minLength": 1},
+        "flight_number": {"type": "integer", "minimum": 1, "maximum": 9}
+      },
+      "allOf": [
+        {"if": {"properties": {"mode": {"const": "custom"}}}, "then": {"required": ["name", "flight_number"]}},
+        {"if": {"properties": {"mode": {"const": "dcs-default"}}}, "then": {"not": {"anyOf": [{"required": ["name"]}, {"required": ["flight_number"]}]}}}
+      ]
+    }},
+    "naval_systems": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["unit", "icls", "datalink"],
+      "properties": {
+        "unit": {"type": "string", "minLength": 1},
+        "icls": {"type": "object", "additionalProperties": false,
+          "required": ["decision"],
+          "properties": {
+            "decision": {"enum": ["pending", "enabled", "not-applicable"]},
+            "channel": {"type": "integer", "minimum": 1, "maximum": 20}
+          },
+          "allOf": [
+            {"if": {"properties": {"decision": {"const": "enabled"}}}, "then": {"required": ["channel"]}},
+            {"if": {"properties": {"decision": {"const": "not-applicable"}}}, "then": {"not": {"required": ["channel"]}}}
+          ]},
+        "datalink": {"type": "object", "additionalProperties": false,
+          "required": ["decision"],
+          "properties": {
+            "decision": {"enum": ["pending", "enabled", "not-applicable"]},
+            "system": {"type": "string", "minLength": 1},
+            "frequency_mhz": {"type": "number", "exclusiveMinimum": 0}
+          },
+          "allOf": [
+            {"if": {"properties": {"decision": {"const": "enabled"}}}, "then": {"required": ["system", "frequency_mhz"]}},
+            {"if": {"properties": {"decision": {"const": "not-applicable"}}}, "then": {"not": {"anyOf": [{"required": ["system"]}, {"required": ["frequency_mhz"]}]}}}
+          ]}
+      }
+    }}
+  }
+}

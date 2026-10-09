@@ -11,7 +11,11 @@ def fixture():
           'route': {'task': {'id': 'SetFrequency', 'params': {'frequency': 225000000, 'modulation': 0}}}}}},
         'ship': {'group': {1: {'name': 'SYNTHETIC-SHIP', 'units': {1: {'type': 'synthetic', 'frequency': 225000000}}}}}
     }}}}}
-    plan = {'schema_version': '1.0', 'phases': ['launch', 'strike'],
+    plan = {'schema_version': '1.1', 'phases': ['launch', 'strike'],
+            'navigation': {'schema_version': '1.0', 'status': 'confirmed', 'source': 'user-request',
+                'evidence': 'Synthetic user requested DCS defaults and no beacons.',
+                'tacan': [], 'yardstick': [], 'naval_systems': [],
+                'callsigns': [{'group': 'SYNTHETIC', 'aircraft': 'F-14BU', 'mode': 'dcs-default'}]},
             'nets': [{'id': 'intra', 'frequency_mhz': 307, 'modulation': 'AM'},
                      {'id': 'shared', 'frequency_mhz': 251, 'modulation': 'AM'},
                      {'id': 'ship', 'frequency_mhz': 264, 'modulation': 'AM'}],
