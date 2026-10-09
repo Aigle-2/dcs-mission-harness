@@ -1,0 +1,31 @@
+schema_version: "1.0"
+classification: public-approved
+mission:
+  schema_version: "1.0"
+  id: synthetic-training
+  title: Synthetic cooperative navigation
+  classification: public-approved
+  theatre: Caucasus
+  multiplayer: true
+  slots:
+    - aircraft: Su-25T
+      coalition: blue
+      count: 2
+  objectives: [Complete a cooperative navigation exercise.]
+  integrations: []
+  acceptance: [Two client slots are available., Both players reach the training zone.]
+purpose: Demonstrate the functional-specification workflow with synthetic data.
+player_experience: Two players cooperate on a short navigation exercise.
+flow: [Join the two slots., Fly to the training zone., Receive a completion message.]
+success: Both players have reached the training zone.
+failure: The training duration expires before both players arrive.
+constraints: [No external mods are required.]
+assumptions: [This is a synthetic example rather than a runtime-validated mission.]
+open_questions: []
+criteria:
+  - id: SLOT-COUNT
+    statement: The archive contains two blue client aircraft.
+    level: local
+  - id: OBJECTIVE-COMPLETION
+    statement: Both connected players receive the success message after reaching the zone.
+    level: client

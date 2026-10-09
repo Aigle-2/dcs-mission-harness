@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from . import __version__
-from . import archives, issues, lessons, publication
+from . import archives, issues, lessons, publication, workflow
 from .core import HarnessError, compatibility, load_document, private_root, result, validate
 from .privacy import scan_text, scan_tracked
 
@@ -20,7 +20,7 @@ def parser() -> argparse.ArgumentParser:
     commands = root.add_subparsers(dest="command", required=True)
     commands.add_parser("doctor")
     command = commands.add_parser("validate")
-    command.add_argument("--kind", choices=["mission", "profile", "lesson", "issue", "publication"], required=True)
+    command.add_argument("--kind", choices=["mission", "functional-spec", "verification", "profile", "lesson", "issue", "publication"], required=True)
     command.add_argument("--file", type=Path, required=True)
     command.add_argument("--profile", type=Path)
     command = commands.add_parser("miz")
@@ -64,10 +64,32 @@ def parser() -> argparse.ArgumentParser:
     child = sub.add_parser("check")
     child.add_argument("--file", type=Path, required=True)
     commands.add_parser("test")
+    command = commands.add_parser("mission")
+    sub = command.add_subparsers(dest="action", required=True)
+    for action in ("start", "status", "spec", "implement", "verify"):
+        child = sub.add_parser(action)
+        child.add_argument("--run", required=True)
+        if action == "start":
+            child.add_argument("--brief-file", type=Path, required=True)
+        elif action in {"spec", "verify"}:
+            child.add_argument("--file", type=Path, required=True)
+        elif action == "implement":
+            child.add_argument("--artifact", type=Path, required=True)
     return root
 
 
 def execute(args: argparse.Namespace) -> dict:
+    if args.command == "mission":
+        root = private_root()
+        if args.action == "start":
+            return workflow.start(root, args.run, args.brief_file)
+        if args.action == "status":
+            return workflow.status(root, args.run)
+        if args.action == "spec":
+            return workflow.specification(root, args.run, args.file)
+        if args.action == "implement":
+            return workflow.implementation(root, args.run, args.artifact)
+        return workflow.verify(root, args.run, args.file)
     if args.command == "doctor":
         checks = {name: bool(shutil.which(name)) for name in ("git", "gh", "luac5.1")}
         try:

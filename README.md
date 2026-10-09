@@ -37,7 +37,7 @@ or a secret manager. See [publication boundaries](docs/privacy.md).
 
 ```text
 dcs-harness doctor
-dcs-harness validate --kind mission|profile|lesson|issue|publication --file <document>
+dcs-harness validate --kind mission|profile|lesson|issue|publication|functional-spec|verification --file <document>
 dcs-harness validate --kind mission --file <document> --profile <profile>
 dcs-harness miz check --file <mission.miz>
 dcs-harness lua check --file <script.lua>
@@ -53,6 +53,31 @@ dcs-harness publish check --candidate <candidate-directory>
 dcs-harness publish export --candidate <candidate-directory> --destination <new-directory>
 dcs-harness test
 ```
+
+## Specification, implementation and verification
+
+Set the private workspace, then use these commands from the checkout:
+
+```text
+dcs-harness mission start --run synthetic-training --brief-file <private-brief.md>
+dcs-harness mission spec --run synthetic-training --file <private-functional-spec.yaml>
+dcs-harness mission implement --run synthetic-training --artifact <built-mission.miz>
+dcs-harness mission verify --run synthetic-training --file <private-verification.json>
+dcs-harness mission status --run synthetic-training
+```
+
+Start returns `next_skill: mission-functional-spec`. The current coding agent
+reads that skill and produces the functional spec before building the mission;
+the CLI does not launch an LLM or contain a general mission generator. See the
+synthetic functional-spec example. Unresolved questions block implementation.
+Keep the source artifact outside the run's reserved `mission.miz` destination.
+
+Accepted specs and registered archives have immutable hashes. Evidence must
+cover every criterion once and match both hashes. Verification retries keep
+their history. After an artifact or accepted spec changes, start a new run.
+`LOCAL_VERIFIED` means local criteria passed; overall mission validation remains
+`INCONCLUSIVE` until actual DCS tests. This version has no runtime evidence
+adapter and rejects runtime/client PASS claims.
 
 Corpus indexing and draft/lesson writes require the private workspace and never
 overwrite existing artifacts. Doctor reports optional missing capabilities such

@@ -61,6 +61,14 @@ def validate(kind: str, data: dict) -> list[dict]:
         ids = [i["id"] for i in data["integrations"]]
         if len(set(ids)) != len(ids):
             errors.append({"code": "DUPLICATE_INTEGRATION", "location": ["integrations"]})
+    if kind == "functional-spec" and not errors:
+        errors.extend({**error, "location": ["mission", *error["location"]]}
+                      for error in validate("mission", data["mission"]))
+        ids = [criterion["id"] for criterion in data["criteria"]]
+        if len(ids) != len(set(ids)):
+            errors.append({"code": "DUPLICATE_CRITERION", "location": ["criteria"]})
+        if not any(criterion["level"] == "local" for criterion in data["criteria"]):
+            errors.append({"code": "LOCAL_CRITERION_REQUIRED", "location": ["criteria"]})
     return errors
 
 
