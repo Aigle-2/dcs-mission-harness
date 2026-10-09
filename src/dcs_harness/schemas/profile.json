@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "id", "classification", "dcs_version", "theatres", "aircraft", "integrations"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,63}$"},
+    "classification": {"enum": ["private", "public-candidate", "public-approved"]},
+    "dcs_version": {"type": "string", "minLength": 1},
+    "theatres": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "aircraft": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "integrations": {"type": "object", "additionalProperties": {"type": "string", "minLength": 1}}
+  }
+}

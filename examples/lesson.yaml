@@ -1,0 +1,12 @@
+schema_version: "1.0"
+id: distinguish-local-and-runtime
+classification: public-approved
+status: validated
+category: constraint
+problem: A structurally valid archive does not demonstrate a running mission.
+recommendation: Report archive and runtime validation as separate evidence levels.
+tags: [validation, reporting]
+evidence:
+  - Synthetic regression test of validation-level reporting.
+confidence: 1.0
+test: tests.test_core.ArchiveTests

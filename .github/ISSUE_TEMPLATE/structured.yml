@@ -1,0 +1,52 @@
+name: Structured mission harness issue
+description: Report a bug, propose a feature, or define a task using public evidence.
+title: "[kind] Concrete problem or outcome"
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options: [Bug, Feature, Task]
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Describe the problem using synthetic or public data.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Observed behavior and reproduction
+      description: For bugs, provide steps and observed results. For features/tasks, describe the current limitation.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Public or synthetic evidence only. State explicitly when runtime evidence is unavailable.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: List observable conditions for completion.
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Publication review
+      options:
+        - label: I reviewed the content and attachments for private data and redistribution rights.
+          required: true

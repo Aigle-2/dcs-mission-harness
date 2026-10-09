@@ -1,0 +1,6 @@
+interface:
+  display_name: "GitHub structured issues"
+  short_description: "Read and draft structured public GitHub issues"
+  default_prompt: "Use $github-structured-issues to read an issue or prepare a structured issue for this repository."
+policy:
+  allow_implicit_invocation: true

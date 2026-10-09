@@ -1,0 +1,16 @@
+schema_version: "1.0"
+id: synthetic-training
+title: Synthetic multiplayer training specification
+classification: public-approved
+theatre: Caucasus
+multiplayer: true
+slots:
+  - aircraft: Su-25T
+    coalition: blue
+    count: 2
+objectives:
+  - Complete a cooperative navigation exercise.
+integrations: []
+acceptance:
+  - Two blue client slots are available.
+  - Both clients receive the initial objective.

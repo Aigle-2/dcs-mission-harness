@@ -1,0 +1,13 @@
+schema_version: "1.0"
+kind: feature
+title: Add runtime mission heartbeat verification
+classification: public-approved
+context: Archive validation cannot prove that a mission started in DCS.
+expected: Correlate a mission heartbeat with its run identifier and artifact hash.
+evidence:
+  - Synthetic specification only; no runtime results are claimed.
+acceptance:
+  - Missing heartbeat reports INCONCLUSIVE or FAIL, never PASS.
+  - Heartbeats from a previous run are excluded.
+scope: Implement the collector against a synthetic log before using a live server.
+labels: []

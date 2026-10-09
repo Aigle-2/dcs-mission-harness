@@ -1,0 +1,7 @@
+schema_version: "1.0"
+id: synthetic-local
+classification: public-approved
+dcs_version: synthetic-not-observed
+theatres: [Caucasus]
+aircraft: [Su-25T]
+integrations: {}
