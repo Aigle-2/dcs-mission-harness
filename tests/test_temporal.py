@@ -15,7 +15,7 @@ class TemporalTests(unittest.TestCase):
         self.spec = load_document(ROOT / 'examples/functional-spec.yaml')
 
     def test_date_and_policy_are_mandatory(self):
-        for field in ('date', 'restrict_by_year'):
+        for field in ('date', 'start_time', 'restrict_by_year'):
             with self.subTest(field=field):
                 value = self.spec['temporal'].pop(field)
                 self.assertTrue(validate('functional-spec', self.spec))
@@ -44,7 +44,7 @@ class TemporalTests(unittest.TestCase):
         self.assertTrue(validate('functional-spec', self.spec))
 
     def test_date_criterion_is_always_local(self):
-        criterion = next(c for c in self.spec['criteria'] if c['id'] == 'MISSION-DATE')
+        criterion = next(c for c in self.spec['criteria'] if c['id'] == 'MISSION-DATE-TIME')
         criterion['level'] = 'client'
         self.assertIn('CONFIGURATION_CRITERIA_REQUIRED',
                       {e['code'] for e in validate('functional-spec', self.spec)})
@@ -53,6 +53,7 @@ class TemporalTests(unittest.TestCase):
         self.spec['temporal'].update(status='proposed', source='agent-proposal')
         document, pending = decision_review(self.spec)
         self.assertIn('[Proposed] date et époque : date 2016-06-15;', document)
+        self.assertIn('début 10:30:00 (heure locale de la carte)', document)
         self.assertIn('non limitée par l’année', document)
         self.assertEqual(pending, 1)
         self.spec['temporal'].update(status='confirmed', source='user-confirmation', restrict_by_year=True)
@@ -80,3 +81,11 @@ class TemporalTests(unittest.TestCase):
             with self.assertRaisesRegex(HarnessError, 'TEMPORAL_REVIEW_REQUIRED'):
                 workflow.specification(root, 'synthetic-training', specfile)
             self.assertFalse((root / 'runs/synthetic-training/spec.accepted.json').exists())
+
+    def test_start_time_requires_a_real_local_clock_value(self):
+        for value, valid in [('00:00:00', True), ('23:59:59', True),
+                             ('24:00:00', False), ('12:60:00', False),
+                             ('12:00:60', False), ('12:00', False), ('12:00:00Z', False)]:
+            with self.subTest(time=value):
+                self.spec['temporal']['start_time'] = value
+                self.assertEqual(not validate('functional-spec', self.spec), valid)

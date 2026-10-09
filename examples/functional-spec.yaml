@@ -25,10 +25,11 @@ open_questions: []
 support_flights: []
 temporal:
   date: "2016-06-15"
+  start_time: "10:30:00"
   restrict_by_year: false
   status: confirmed
   source: user-confirmation
-  evidence: Synthetic user confirmed the date without historical aircraft or weapon restrictions.
+  evidence: Synthetic user confirmed the date and local start time without historical restrictions.
 navigation:
   schema_version: "1.0"
   status: confirmed
@@ -59,7 +60,7 @@ communications:
   source: user-confirmation
   evidence: Synthetic user declined a comm-plan after being asked.
 criteria:
-  - {id: MISSION-DATE, statement: Saved mission calendar date matches the reviewed date., level: local}
+  - {id: MISSION-DATE-TIME, statement: Saved mission calendar date and local start time match reviewed values., level: local}
   - {id: NAVIGATION, statement: Flight callsigns resolve to valid DCS defaults without unreviewed beacons., level: local}
   - {id: AIRCRAFT-LIVERIES, statement: Aircraft keep default liveries without unreviewed overrides., level: local}
   - {id: UNIT-TYPES, statement: All unit type identifiers match a verified installation catalog., level: local}

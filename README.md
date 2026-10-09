@@ -82,12 +82,12 @@ In the final readable spec, agent-selected and delegated choices use `[Proposed]
 user-supplied/confirmed choices use `[Decided]`. Additional parameter decisions
 are recorded as `parameter:<slug>` topics and block registration until confirmed.
 `mission review` generates a private labeled appendix without accepting the spec.
-Functional-spec version 1.7 requires user decisions on date/era and communications,
+Functional-spec version 1.7 requires user decisions on date/time/era and communications,
 support aircraft/launch platform, air defence and victory conditions. Proposed
 choices block the transition. For a comm-plan, first list each radio's compatible
-bands, then show active frequencies over mission phases. Date and year-based
+bands, then show active frequencies over mission phases. Date, local start time and year-based
 aircraft/weapon restrictions are explicitly reviewed; proposed temporal choices
-block registration. MISSION-DATE is mandatory, with ERA-AVAILABILITY when year
+block registration. MISSION-DATE-TIME is mandatory, with ERA-AVAILABILITY when year
 restrictions are enabled. See mission quality for historical checks and exceptions.
 The implementation
 adapter changes presets and flight/support frequencies and checks the archive.

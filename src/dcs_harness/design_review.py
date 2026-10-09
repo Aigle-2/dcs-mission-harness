@@ -24,7 +24,7 @@ def decision_review(spec: dict) -> tuple[str, int]:
     for item in spec['design_decisions']:
         add(item['topic'], item['choice'], item['status'], item['source'], item['evidence'])
     temporal = spec['temporal']
-    choice = (f"date {temporal['date']}; disponibilité des avions et armements "
+    choice = (f"date {temporal['date']}; début {temporal['start_time']} (heure locale de la carte); disponibilité des avions et armements "
               + ('limitée par l’année' if temporal['restrict_by_year'] else 'non limitée par l’année'))
     add('date et époque', choice, temporal['status'], temporal['source'], temporal['evidence'])
     nav = spec['navigation']

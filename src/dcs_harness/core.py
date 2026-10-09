@@ -99,7 +99,7 @@ def validate(kind: str, data: dict) -> list[dict]:
         if configuration["ai_skill_source"] == "default-policy" and configuration["ai_skill"] != "High":
             errors.append({"code": "VETERAN_DEFAULT_REQUIRED", "location": ["configuration", "ai_skill"]})
         local_ids = {c["id"] for c in data["criteria"] if c["level"] == "local"}
-        required_checks = {"UNIT-TYPES", "AIRCRAFT-LOADOUTS", "AI-SKILL", "NAVIGATION", "MISSION-DATE"}
+        required_checks = {"UNIT-TYPES", "AIRCRAFT-LOADOUTS", "AI-SKILL", "NAVIGATION", "MISSION-DATE-TIME"}
         if temporal['restrict_by_year']:
             required_checks.add('ERA-AVAILABILITY')
         if configuration["carrier_present"]:

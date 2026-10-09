@@ -23,14 +23,18 @@ Include the mission's map, multiplayer slots, departures, objectives and
 integration requirements. Keep implementation details for the implementation
 step except where they express a real player requirement.
 
-During initial design, ask for the mission's calendar date (year/month/day), and
+During initial design, ask for the mission's calendar date (year/month/day), local
+start time on the mission's map, and
 whether its year should restrict available aircraft and armaments. Reuse explicit
 answers; otherwise propose a date and offer historical restrictions on or off.
 Never silently use today's date or infer historical restrictions from an old date.
-Record `temporal.date` as a quoted YYYY-MM-DD string, `restrict_by_year` as a
+Record `temporal.date` as a quoted YYYY-MM-DD string, `start_time` as quoted
+HH:MM:SS in the map's local clock (not the agent PC's time or UTC), `restrict_by_year` as a
 boolean, and status/source/evidence for the combined reviewed choice. A partially
 answered or delegated choice remains proposed, visible as `[Proposed]`, and blocks
-registration. Show both values in the final spec, even when restrictions are off.
+registration. Show date, time and policy in the final spec, even when restrictions are off.
+Preserve already confirmed start times; if the user specifies only hours/minutes,
+encode zero seconds. Propose and review any otherwise missing time.
 
 If restrictions are on, review each player, enemy and support aircraft's exact
 variant and each weapon/loadout against availability for that date and country.
@@ -43,12 +47,12 @@ table, sources and exceptions with implementation evidence. See mission-quality.
 If restrictions are off, retain module/station compatibility checks, without
 excluding equipment merely because of the mission year.
 
-Implement the accepted calendar date in the saved mission. Add local criterion
-`MISSION-DATE` always and `ERA-AVAILABILITY` when restrictions are on, checking
+Implement the accepted calendar date and local start time in the saved mission.
+Add local criterion `MISSION-DATE-TIME` always and `ERA-AVAILABILITY` when restrictions are on, checking
 aircraft variants and weapons, including permitted rearm options where applicable.
 Do not assume setting the mission year automatically enforces this policy in DCS:
 verify target editor/server settings and saved inventories, and document limits.
-Time of day is a separate design choice; do not change a confirmed start time.
+Verify start time as seconds since local midnight: HH*3600 + MM*60 + SS.
 
 Give each acceptance criterion an ID, a measurable statement and a validation
 level (`local`, `runtime` or `client`). Local checks cannot certify gameplay,
