@@ -197,8 +197,9 @@ class WorkflowTests(unittest.TestCase):
         _, plan = fixture()
         self.spec['communications'].update(decision='enabled', plan=plan)
         self.assertTrue(validate('functional-spec', self.spec))
-        for key in ('COMM-PRESETS', 'COMM-FREQUENCIES'):
+        for key in ('COMM-PRESETS', 'COMM-FREQUENCIES', 'COMM-BRIEFING', 'COMM-KNEEBOARD'):
             self.spec['criteria'].append({'id': key, 'level': 'local', 'statement': 'Communication configuration matches approved plan.'})
+        self.spec['criteria'].append({'id': 'COMM-DOCS-VISIBLE', 'level': 'client', 'statement': 'Briefing and kneeboard are readable in every playable module.'})
         self.assertEqual(validate('functional-spec', self.spec), [])
         self.save_spec()
         workflow.start(self.root, self.id, self.brief)
@@ -207,6 +208,28 @@ class WorkflowTests(unittest.TestCase):
             with self.assertRaisesRegex(HarnessError, 'COMM_PLAN_NOT_APPLIED'):
                 workflow.implementation(self.root, self.id, self.miz)
             checked.assert_called_once()
+
+    def test_enabled_plan_requires_both_document_checks_locally(self):
+        from test_communications import fixture
+        _, plan = fixture()
+        self.spec['communications'].update(decision='enabled', plan=plan)
+        for key in ('COMM-PRESETS', 'COMM-FREQUENCIES', 'COMM-BRIEFING', 'COMM-KNEEBOARD'):
+            self.spec['criteria'].append({'id': key, 'level': 'local', 'statement': 'Communication configuration matches approved plan.'})
+        self.spec['criteria'].append({'id': 'COMM-DOCS-VISIBLE', 'level': 'client', 'statement': 'Briefing and kneeboard are readable in every playable module.'})
+        self.assertEqual(validate('functional-spec', self.spec), [])
+        for key in ('COMM-BRIEFING', 'COMM-KNEEBOARD'):
+            item = next(c for c in self.spec['criteria'] if c['id'] == key)
+            item['level'] = 'client'
+            self.assertIn('COMM_LOCAL_CRITERIA_REQUIRED', {e['code'] for e in validate('functional-spec', self.spec)})
+            item['level'] = 'local'
+
+    def test_enabled_plan_requires_client_document_visibility_check(self):
+        from test_communications import fixture
+        _, plan = fixture()
+        self.spec['communications'].update(decision='enabled', plan=plan)
+        for key in ('COMM-PRESETS', 'COMM-FREQUENCIES', 'COMM-BRIEFING', 'COMM-KNEEBOARD', 'COMM-DOCS-VISIBLE'):
+            self.spec['criteria'].append({'id': key, 'level': 'local', 'statement': 'Communication configuration matches approved plan.'})
+        self.assertIn('COMM_DOCUMENT_CLIENT_CRITERION_REQUIRED', {e['code'] for e in validate('functional-spec', self.spec)})
 
     def test_order_open_questions_and_changed_brief_block(self):
         workflow.start(self.root, self.id, self.brief)

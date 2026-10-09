@@ -118,6 +118,21 @@ Use `docs/communications.md` for the current adapter's limits and implementation
 Add local criteria `COMM-PRESETS` and `COMM-FREQUENCIES`, plus client audio checks.
 Keep first presets consistent with flight frequency to avoid DCS overwrites.
 
+For every enabled comm-plan, require its inclusion in the in-game mission briefing
+and mission-embedded kneeboard pages for every playable aircraft type. Generate
+both from the accepted plan used for radio configuration: nets, MHz/AM/FM,
+flight/support assignments, aircraft-specific preset numbers and radio selections
+by mission phase. Label flight-specific information clearly when several flights
+share an aircraft type. Include manual switching instructions and listening gaps.
+Standalone Markdown/PDF files do not satisfy in-game delivery. Preserve existing
+briefing content and resolve DCS localization dictionary keys when checking it.
+Render and inspect kneeboard images for readable text, complete tables and no
+clipping, then verify they are packaged in the archive. Do not treat an image's
+filename as evidence of its contents. Read docs/communications.md for packaging
+and validation details. Add local criteria `COMM-BRIEFING` and `COMM-KNEEBOARD`,
+and client criterion `COMM-DOCS-VISIBLE` for briefing/kneeboard access and
+readability in every playable module. These criteria are required by the CLI.
+
 Record non-blocking implementation defaults as assumptions. If an answer is
 pending, populate `open_questions` and stop the implementation transition.
 Preserve the user-authorized scope; do not add enemies, mods or complex systems

@@ -1,6 +1,6 @@
 # Communications and design review
 
-Functional specs use version 1.3. Support aircraft and launch platform, air
+Functional specs use version 1.4. Support aircraft and launch platform, air
 defence composition, and victory/failure conditions need recorded user choices.
 An explicit request already supplies a choice; an agent's proposal does not.
 Features absent from the scenario may be marked not applicable. Ask whether a
@@ -55,3 +55,33 @@ environment. A missing parser returns BLOCKED. The core package and synthetic
 unit tests do not depend on pydcs. The spec must include COMM-PRESETS and
 COMM-FREQUENCIES local criteria. Connectivity, radio audio, crew selections and
 SRS operation require client/runtime checks; local table checks cannot certify them.
+
+## Briefing and kneeboards
+
+Every enabled comm-plan must appear in the DCS briefing and in mission-embedded
+kneeboard images for all playable aircraft types. Generate both from the same
+accepted plan used to configure radios. Include nets/frequencies in MHz,
+modulation, flight/support assignments, per-aircraft preset numbers and the
+phase-by-radio schedule, with manual selections and listening gaps. Label each
+flight so two flights of the same aircraft type can identify their own presets.
+Preserve the existing scenario briefing when adding communications.
+
+Kneeboards are packaged under `KNEEBOARD/<exact-aircraft-type>/IMAGES/` in the
+mission ZIP by the current builder. Pages are shared by aircraft type, not an
+individual flight, and may cross coalition boundaries. For PvP, review what can
+be shared before distributing radio plans this way; do not assume type-specific
+pages protect coalition information. The representation is documented in
+[pydcs mission.py](https://github.com/pydcs/dcs/blob/55dc18adbd6907ea17d87de559445c4f9bc39146/dcs/mission.py).
+
+Required acceptance criteria for enabled plans:
+
+| Criterion | Level | Evidence |
+| --- | --- | --- |
+| COMM-BRIEFING | local | Read the saved mission's briefing fields and referenced localization dictionary; compare the visible comm-plan with the accepted plan. An unattached sidecar document is insufficient. |
+| COMM-KNEEBOARD | local | Inspect the actual rendered images, record their hashes, verify all playable aircraft types have the intended pages inside the ZIP, and compare text/tables with the accepted plan. Check font size, clipping and multipage completeness. Filenames alone are insufficient. |
+| COMM-DOCS-VISIBLE | client | Open the briefing and kneeboard in DCS for each playable module; confirm readability, correct flight labels and matching presets/phase selections. |
+
+The schema enforces these criteria's presence and levels. The implementing agent
+must execute the artifact/content checks and provide hash-bound evidence; the
+radio adapter itself does not render or validate kneeboard image contents.
+Local image inspection does not certify in-cockpit display.

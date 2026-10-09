@@ -115,8 +115,10 @@ def validate(kind: str, data: dict) -> list[dict]:
                           for error in validate("comm-plan", comm["plan"]))
         if comm["decision"] == "enabled":
             local_ids = {c["id"] for c in data["criteria"] if c["level"] == "local"}
-            if not {"COMM-PRESETS", "COMM-FREQUENCIES"}.issubset(local_ids):
+            if not {"COMM-PRESETS", "COMM-FREQUENCIES", "COMM-BRIEFING", "COMM-KNEEBOARD"}.issubset(local_ids):
                 errors.append({"code": "COMM_LOCAL_CRITERIA_REQUIRED", "location": ["criteria"]})
+            if not any(c["id"] == "COMM-DOCS-VISIBLE" and c["level"] == "client" for c in data["criteria"]):
+                errors.append({"code": "COMM_DOCUMENT_CLIENT_CRITERION_REQUIRED", "location": ["criteria"]})
     if kind == "comm-plan" and not errors:
         net_ids = [net["id"] for net in data["nets"]]
         assignment_ids = [item["group"] for item in data["assignments"]]

@@ -70,7 +70,7 @@ Start returns `next_skill: mission-functional-spec`. The current coding agent
 reads that skill and produces the functional spec before building the mission;
 the CLI does not launch an LLM or contain a general mission generator. See the
 synthetic functional-spec example. Unresolved questions block implementation.
-Functional-spec version 1.3 requires user decisions on communications,
+Functional-spec version 1.4 requires user decisions on communications,
 support aircraft/launch platform, air defence and victory conditions. Proposed
 choices block the transition. For a comm-plan, first list each radio's compatible
 bands, then show active frequencies over mission phases. The implementation
@@ -83,6 +83,8 @@ see [mission quality](docs/mission-quality.md) for verification requirements.
 AWACS/tanker entries explicitly define cruise and mission altitudes and orbit
 areas; tankers also define model, refueling system and receiver types. Proposed
 support profiles block spec registration until reviewed.
+Enabled comm-plans must also be included in the in-game briefing and embedded
+kneeboards, with mandatory local content checks and client readability checks.
 Earlier specs need review in a new run before further work.
 Keep the source artifact outside the run's reserved `mission.miz` destination.
 

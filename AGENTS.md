@@ -38,6 +38,8 @@ Also review carrier escort/placement and aircraft composition/loadouts. Default
 AI to veteran (`High`); verify installed unit IDs and AWACS station orbit/altitude.
 Specs define cruise/mission altitudes and orbit areas for AWACS/tankers, plus
 tanker models and refueling compatibility. Review support profiles before build.
+Include each enabled comm-plan in the in-game briefing and mission-embedded
+kneeboards for playable aircraft. Verify consistency and in-cockpit readability.
 See docs/mission-quality.md for checks and handling user feedback after a DCS test.
 
 ## Structured GitHub issues

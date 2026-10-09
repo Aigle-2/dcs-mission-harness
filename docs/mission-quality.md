@@ -1,6 +1,6 @@
 # Mission configuration and DCS feedback
 
-Functional-spec 1.3 includes recorded aircraft/loadout, battlegroup and placement
+Functional-spec 1.4 includes recorded aircraft/loadout, battlegroup and placement
 decisions, explicit carrier/AWACS presence and an AI skill policy. Proposed choices
 block registration. Carrier choices cannot be marked inapplicable when a carrier
 is present. Aircraft/loadout review is mandatory, including for unarmed training.
