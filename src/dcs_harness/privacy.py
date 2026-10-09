@@ -19,7 +19,7 @@ RULES = {
     "PERSONAL_PATH": re.compile(r"(?:[A-Za-z]:[\\/]+Users[\\/]+[^\s\\/]+|/h[o]me/[^/\s]+/|/U[s]ers/[^/\s]+/)", re.I),
     "EMAIL": re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
     "ENDPOINT_IPV4": re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"),
-    "CREDENTIAL_ASSIGNMENT": re.compile(r"(?:password|api[_-]?key|access[_-]?token|secret)\s*[=:]\s*[\"']?[A-Za-z0-9_+/=-]{12,}", re.I),
+    "CREDENTIAL_ASSIGNMENT": re.compile(r"(?:password|api[_-]?key|access[_-]?token|secret)[\"']?\s*[=:]\s*[\"']?[A-Za-z0-9_+/=-]{12,}", re.I),
     "PLAYER_IDENTIFIER": re.compile(r"\b(?:ucid|player[_-]?id)\s*[=:]\s*[\"']?[a-f0-9]{16,}", re.I),
 }
 

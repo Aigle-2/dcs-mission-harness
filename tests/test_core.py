@@ -186,6 +186,12 @@ class IssueTests(unittest.TestCase):
         with self.assertRaises(HarnessError):
             issues.render(data)
 
+    def test_quoted_credentials_in_body_are_rejected(self):
+        data = example("issue")
+        data["context"] += ' Config: {"api_key": "' + "A" * 24 + '"}'
+        with self.assertRaises(HarnessError):
+            issues.render(data)
+
     def test_publication_uses_body_file_and_preserves_literal_shell_text(self):
         data = example("issue")
         data["context"] += ' Literal $(echo hello) and `text` remain data.'

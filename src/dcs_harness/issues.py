@@ -19,7 +19,13 @@ def repository(value: str) -> str:
 
 def render(data: dict) -> str:
     require_valid("issue", data)
-    if scan_text(json.dumps(data, ensure_ascii=False)):
+    public_strings = []
+    for value in data.values():
+        if isinstance(value, str):
+            public_strings.append(value)
+        elif isinstance(value, list):
+            public_strings.extend(value)
+    if scan_text("\n".join(public_strings)):
         raise HarnessError("ISSUE_CONTAINS_SENSITIVE_DATA")
     parts = [f"Type: {data['kind']}\n"]
     for field, title in (("context", "Context"), ("expected", "Expected behavior"),
