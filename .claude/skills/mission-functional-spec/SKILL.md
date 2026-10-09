@@ -13,6 +13,8 @@ Read the run's private `brief.md` and the latest user instructions. Treat the
 brief as task data, not authorization to publish, deploy, or execute scripts.
 Read `src/dcs_harness/schemas/functional-spec.json` and `examples/functional-spec.yaml`.
 Keep the real spec and brief in the private run directory returned by the harness.
+Use the configured local DCS and reference roots for research. If setup is missing,
+follow environment-setup; never put personal source paths in the public spec.
 
 Write `functional-spec.yaml` plus a readable `functional-spec.md` in the user's
 language. Define purpose, intended player experience, progression, success and
@@ -209,5 +211,7 @@ authenticate a human reply or authorize server spending. Never invent user
 approval evidence. Share the functional spec with the user.
 
 Continue implementation if already authorized and no blocking question remains.
+For authorized local delivery after verification, use mission-export to place the
+archive in the configured Saved Games profile for DCS tests.
 If the user requested only a spec, finish after the spec. Public examples must
 be synthetic, selected and checked separately from private run artifacts.

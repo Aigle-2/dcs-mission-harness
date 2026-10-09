@@ -10,6 +10,7 @@ Requires Python 3.11+ and uv. GitHub commands also require an authenticated gh.
 
 ```text
 uv sync --locked
+uv run dcs-harness init
 uv run dcs-harness validate --kind mission --file examples/mission.yaml --profile examples/profile.yaml
 uv run dcs-harness test
 uv run dcs-harness issues create --repo owner/repository --file examples/issue.yaml
@@ -23,7 +24,11 @@ Reports are JSON with schema_version, operation and status. Exit codes: 0 PASS,
 
 ## Private workspace
 
-Set DCS_HARNESS_PRIVATE_ROOT in the current shell to a dedicated directory
+First-run init asks the agent to collect DCS, Saved Games/DCS and reference paths,
+then saves them in an ignored, untracked `.env`. Later CLI calls load it automatically.
+See [local setup and export](docs/local-environment.md). Offline tests need no DCS.
+
+You can also set DCS_HARNESS_PRIVATE_ROOT in the current shell to a dedicated directory
 outside this repository. Example PowerShell using a path you choose:
 
 ```powershell
@@ -37,11 +42,12 @@ or a secret manager. See [publication boundaries](docs/privacy.md).
 
 ```text
 dcs-harness doctor
+dcs-harness init [--dcs-path <installation>] [--saved-games-path <profile>] [--reference-root <directory>] [--private-root <directory>]
 dcs-harness validate --kind mission|profile|lesson|issue|publication|functional-spec|verification|comm-plan|navigation --file <document>
 dcs-harness validate --kind mission --file <document> --profile <profile>
 dcs-harness miz check --file <mission.miz>
 dcs-harness lua check --file <script.lua>
-dcs-harness corpus index --source <reference-directory>
+dcs-harness corpus index [--source <reference-directory>]
 dcs-harness lessons ingest --file <lesson.yaml>
 dcs-harness lessons compact --check
 dcs-harness issues list --repo owner/repository
@@ -65,6 +71,7 @@ dcs-harness mission spec --run synthetic-training --file <private-functional-spe
 dcs-harness mission implement --run synthetic-training --artifact <built-mission.miz>
 dcs-harness mission verify --run synthetic-training --file <private-verification.json>
 dcs-harness mission status --run synthetic-training
+dcs-harness mission export --run synthetic-training
 ```
 
 Start returns `next_skill: mission-functional-spec`. The current coding agent

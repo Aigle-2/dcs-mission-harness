@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from . import __version__
-from . import archives, issues, lessons, publication, workflow
+from . import archives, configuration, issues, lessons, mission_export, publication, workflow
 from .core import HarnessError, compatibility, load_document, private_root, result, validate
 from .privacy import scan_text, scan_tracked
 
@@ -19,6 +19,11 @@ def parser() -> argparse.ArgumentParser:
     root.add_argument("--version", action="version", version=__version__)
     commands = root.add_subparsers(dest="command", required=True)
     commands.add_parser("doctor")
+    command = commands.add_parser('init')
+    command.add_argument('--dcs-path', type=Path)
+    command.add_argument('--saved-games-path', type=Path)
+    command.add_argument('--reference-root', type=Path, action='append')
+    command.add_argument('--private-root', type=Path)
     command = commands.add_parser("validate")
     command.add_argument("--kind", choices=["mission", "functional-spec", "verification", "comm-plan", "navigation", "profile", "lesson", "issue", "publication"], required=True)
     command.add_argument("--file", type=Path, required=True)
@@ -30,7 +35,7 @@ def parser() -> argparse.ArgumentParser:
     command = commands.add_parser("corpus")
     sub = command.add_subparsers(dest="action", required=True)
     index = sub.add_parser("index")
-    index.add_argument("--source", type=Path, required=True)
+    index.add_argument("--source", type=Path)
     command = commands.add_parser("lessons")
     sub = command.add_subparsers(dest="action", required=True)
     ingest = sub.add_parser("ingest")
@@ -66,7 +71,7 @@ def parser() -> argparse.ArgumentParser:
     commands.add_parser("test")
     command = commands.add_parser("mission")
     sub = command.add_subparsers(dest="action", required=True)
-    for action in ("start", "status", "review", "spec", "implement", "verify"):
+    for action in ("start", "status", "review", "spec", "implement", "verify", "export"):
         child = sub.add_parser(action)
         child.add_argument("--run", required=True)
         if action == "start":
@@ -79,8 +84,15 @@ def parser() -> argparse.ArgumentParser:
 
 
 def execute(args: argparse.Namespace) -> dict:
+    if args.command == 'init':
+        return configuration.initialize(Path.cwd(), args.dcs_path, args.saved_games_path,
+                                        args.reference_root, args.private_root)
     if args.command == "mission":
+        if args.action in {'start', 'export'}:
+            configuration.settings(Path.cwd())
         root = private_root()
+        if args.action == 'export':
+            return mission_export.export(root, Path.cwd(), args.run)
         if args.action == "start":
             return workflow.start(root, args.run, args.brief_file)
         if args.action == "status":
@@ -93,6 +105,7 @@ def execute(args: argparse.Namespace) -> dict:
             return workflow.implementation(root, args.run, args.artifact)
         return workflow.verify(root, args.run, args.file)
     if args.command == "doctor":
+        configuration.settings(Path.cwd())
         checks = {name: bool(shutil.which(name)) for name in ("git", "gh", "luac5.1")}
         try:
             private_root()
@@ -116,7 +129,14 @@ def execute(args: argparse.Namespace) -> dict:
     if args.command == "miz":
         return archives.inspect_miz(args.file)
     if args.command == "corpus":
-        return archives.index_corpus(args.source, private_root() / "corpus-index.json")
+        if args.source:
+            return archives.index_corpus(args.source, private_root() / "corpus-index.json")
+        roots = configuration.settings(Path.cwd()).references
+        if not roots:
+            raise HarnessError('REFERENCE_ROOTS_NOT_CONFIGURED', 'BLOCKED')
+        reports = [archives.index_corpus(source, private_root() / f'corpus-index-{i:02d}.json')
+                   for i, source in enumerate(roots, 1)]
+        return result('PASS', 'corpus.index', roots=len(roots), reports=reports)
     if args.command == "lessons":
         return lessons.ingest(private_root(), load_document(args.file)) if args.action == "ingest" else lessons.budget_report(private_root())
     if args.command == "issues":
@@ -155,9 +175,14 @@ def execute(args: argparse.Namespace) -> dict:
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
     try:
+        configuration.load_env(Path.cwd())
         report = execute(args)
     except HarnessError as error:
         report = result(error.status, args.command, findings=[{"code": error.code}])
+        if error.code == 'LOCAL_SETUP_REQUIRED':
+            report.update(next_skill='environment-setup',
+                          skill_file='.agents/skills/environment-setup/SKILL.md',
+                          agent_action='Ask the user for DCS and Saved Games/DCS paths and optional reference directories; run init.')
     except (OSError, ValueError, KeyError, TypeError, RecursionError, subprocess.TimeoutExpired):
         report = result("BLOCKED", args.command, findings=[{"code": "OPERATION_FAILED_NO_PRIVATE_DETAILS"}])
     print(json.dumps(report, ensure_ascii=False, indent=2))

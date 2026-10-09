@@ -4,6 +4,10 @@ Private by default: personal/reference missions, player identities, private
 endpoints, credentials, source paths, recordings, raw logs and lessons learned
 from those inputs. Keep them under DCS_HARNESS_PRIVATE_ROOT outside the checkout.
 Do not use the home directory or the repository as the private root.
+Local installation/profile/reference paths are saved in the checkout's ignored,
+untracked `.env` as an explicit configuration exception. Do not commit that file;
+`.env.example` contains placeholders only. Local mission export writes to the
+configured Saved Games profile, not a public release.
 
 Public content needs explicit selection, review and redistribution rights.
 Technical validation and publication approval are separate. Scanners cannot
