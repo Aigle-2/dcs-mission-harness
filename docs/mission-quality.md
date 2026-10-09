@@ -1,11 +1,22 @@
 # Mission configuration and DCS feedback
 
-Functional-spec 1.4 includes recorded aircraft/loadout, battlegroup and placement
+Functional-spec 1.5 includes recorded aircraft/loadout, battlegroup and placement
 decisions, explicit carrier/AWACS presence and an AI skill policy. Proposed choices
 block registration. Carrier choices cannot be marked inapplicable when a carrier
 is present. Aircraft/loadout review is mandatory, including for unarmed training.
 Veteran means `High` under harness policy; user overrides require a user source.
 Old runs remain historical; use a new run to review and implement a revision.
+
+Offer aircraft livery selection, including keeping defaults. The `liveries`
+record stores pending/default/custom, user source and evidence. Here custom
+means user-selected, including built-in skins; it does not require an external
+skin. Custom selections name group, exact aircraft variant, optional unit and
+actual livery ID. Apply group selections first, then explicit unit overrides;
+leave other aircraft on defaults. Reject ambiguous duplicate targets. Verify
+the selected livery is available for the aircraft/country on target installations,
+and describe any external-skin client dependency. An unavailable selection is
+BLOCKED until resolved, not permission to silently substitute a different skin.
+Keep personal assets and source paths private.
 
 `support_flights` explicitly lists every requested AWACS and tanker. Each entry
 records group, exact aircraft type, cruise/transit altitude, mission/on-station
@@ -34,6 +45,7 @@ table and submit hash-bound evidence. Archive integrity alone is insufficient.
 | --- | --- |
 | UNIT-TYPES | Every aircraft, ship, vehicle and static type matches a catalog verified for the target installation; record source/version/hash privately. Unknown types are BLOCKED, invalid types FAIL. |
 | AIRCRAFT-LOADOUTS | Every flight has the reviewed variant, count, roles, per-station CLSIDs, fuel and countermeasures. Verify pylon compatibility against the installed module. Empty pylons pass only when reviewed as clean. |
+| AIRCRAFT-LIVERIES | Compare saved per-unit livery IDs/defaults with the reviewed selections, including unit overrides; verify aircraft/country and installed skin availability. |
 | AI-SKILL | Compare every AI unit with the default `High` or its reviewed override; preserve Client/Player skills. |
 | CARRIER-GROUP | Match reviewed escort types/counts, coalition, spacing and route behavior; a solo carrier requires an explicit user choice. |
 | CARRIER-PLACEMENT | Match reviewed start area, distance, route and heading. Check water/coast clearance using available terrain data or mark that part pending DCS inspection. |
@@ -50,6 +62,10 @@ its deck/runway starting altitude or assume every reference uses the same height
 Client/runtime checks cover valid slot loading, visible payloads, launch and deck
 traffic, carrier/escort navigation, AWACS climb and stable station flight, combat,
 radio audio and victory behavior. Keep them pending until observed in DCS.
+For user-selected liveries, `LIVERIES-VISIBLE` is a required client criterion:
+check the appearance on participating clients. A saved ID cannot prove that a
+client has the required textures. The CLI checks choice/criterion records;
+the implementing agent performs the artifact and installation checks.
 
 When a user reports a defect, retain the existing artifact and verification
 history. Record feedback privately, identify the affected criterion, reproduce

@@ -175,6 +175,44 @@ class WorkflowTests(unittest.TestCase):
         with self.assertRaises(HarnessError):
             workflow.start(self.root, self.id, self.brief)
 
+    def test_unanswered_livery_offer_blocks_registration(self):
+        workflow.start(self.root, self.id, self.brief)
+        self.spec['liveries'].update(decision='pending', source='unanswered')
+        self.save_spec()
+        with self.assertRaisesRegex(HarnessError, 'LIVERY_DECISION_REQUIRED'):
+            workflow.specification(self.root, self.id, self.specfile)
+
+    def test_livery_defaults_require_answer_without_selections(self):
+        self.assertEqual(validate('functional-spec', self.spec), [])
+        self.spec['liveries']['source'] = 'unanswered'
+        self.assertIn('LIVERY_USER_DECISION_REQUIRED', {e['code'] for e in validate('functional-spec', self.spec)})
+        self.spec['liveries']['source'] = 'user-confirmation'
+        self.spec['liveries']['selections'] = [{'group': 'Synthetic', 'aircraft': 'Su-25T', 'livery_id': 'Synthetic skin'}]
+        self.assertTrue(validate('functional-spec', self.spec))
+
+    def test_custom_liveries_require_selection_and_visibility(self):
+        self.spec['liveries']['decision'] = 'custom'
+        self.assertTrue(validate('functional-spec', self.spec))
+        self.spec['liveries']['selections'] = [{'group': 'Synthetic', 'aircraft': 'Su-25T', 'livery_id': 'Synthetic skin'}]
+        self.assertIn('LIVERY_CLIENT_CRITERION_REQUIRED', {e['code'] for e in validate('functional-spec', self.spec)})
+        self.spec['criteria'].append({'id': 'LIVERIES-VISIBLE', 'level': 'client', 'statement': 'Selected skins appear on participating DCS clients.'})
+        self.assertEqual(validate('functional-spec', self.spec), [])
+        self.spec['liveries']['selections'][0]['livery_id'] = ''
+        self.assertTrue(validate('functional-spec', self.spec))
+
+    def test_livery_duplicate_target_and_unit_override(self):
+        item = {'group': 'Synthetic', 'aircraft': 'Su-25T', 'livery_id': 'Synthetic skin'}
+        self.spec['liveries'].update(decision='custom', selections=[item, dict(item, unit='Synthetic wingman')])
+        self.spec['criteria'].append({'id': 'LIVERIES-VISIBLE', 'level': 'client', 'statement': 'Selected skins appear on participating DCS clients.'})
+        self.assertEqual(validate('functional-spec', self.spec), [])
+        self.spec['liveries']['selections'].append(dict(item))
+        self.assertIn('DUPLICATE_LIVERY_TARGET', {e['code'] for e in validate('functional-spec', self.spec)})
+
+    def test_livery_artifact_check_is_required(self):
+        item = next(c for c in self.spec['criteria'] if c['id'] == 'AIRCRAFT-LIVERIES')
+        item['level'] = 'client'
+        self.assertIn('LIVERY_LOCAL_CRITERION_REQUIRED', {e['code'] for e in validate('functional-spec', self.spec)})
+
     def test_proposed_design_and_unanswered_comm_plan_block_implementation(self):
         workflow.start(self.root, self.id, self.brief)
         self.spec['design_decisions'][2].update(status='proposed', source='agent-proposal')

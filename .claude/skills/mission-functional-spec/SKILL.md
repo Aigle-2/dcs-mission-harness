@@ -55,6 +55,23 @@ choice, never an unnoticed generator default. Verify station/CLSID compatibility
 for the installed module. Preserve earlier confirmed choices rather than asking
 again. Summarize per-flight configurations in the readable spec.
 
+Offer the user a choice of aircraft liveries unless already answered: keep the
+defaults or choose by flight, with optional per-aircraft overrides. Do not force
+a custom skin or choose one silently. Record `liveries.decision` as pending,
+default or custom with actual user evidence; pending blocks spec registration.
+For custom choices, record group, exact aircraft type, optional unit name and
+verified `livery_id`. A group selection applies to its aircraft, with explicit
+unit selections taking precedence; unspecified aircraft retain defaults.
+If the user needs options, inspect available liveries for the installed variant
+and country without executing skin Lua. Resolve display names to actual IDs and
+verify target availability before applying. Describe client installation needs
+for external skins, and keep personal skins/source paths private. Do not bundle
+skin textures into the public repository as part of selecting them.
+Add local criterion `AIRCRAFT-LIVERIES` to check saved overrides/defaults and
+target availability; custom choices also require client criterion
+`LIVERIES-VISIBLE` to confirm the intended appearance on participating clients.
+See docs/mission-quality.md for implementation evidence.
+
 Set `configuration.carrier_present` and `awacs_present` from the scenario.
 The harness default AI level is veteran, encoded as DCS `High`; this is a harness
 policy alias, not a claim about a translated DCS label. Record `ai_skill: High`

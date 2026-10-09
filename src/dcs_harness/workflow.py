@@ -86,6 +86,8 @@ def specification(root: Path, run_id: str, file: Path) -> dict:
         raise HarnessError("SUPPORT_FLIGHT_REVIEW_REQUIRED", "BLOCKED")
     if spec["communications"]["decision"] == "pending":
         raise HarnessError("COMM_PLAN_DECISION_REQUIRED", "BLOCKED")
+    if spec["liveries"]["decision"] == "pending":
+        raise HarnessError("LIVERY_DECISION_REQUIRED", "BLOCKED")
     if spec["mission"]["id"] != run_id:
         raise HarnessError("SPEC_RUN_ID_MISMATCH")
     with locked_run(root, run_id) as (path, state):
@@ -113,6 +115,8 @@ def unchanged_spec(path: Path, state: dict) -> dict:
         raise HarnessError("DESIGN_REVIEW_REQUIRED", "BLOCKED")
     if any(f["status"] == "proposed" for f in spec["support_flights"]):
         raise HarnessError("SUPPORT_FLIGHT_REVIEW_REQUIRED", "BLOCKED")
+    if spec["liveries"]["decision"] == "pending":
+        raise HarnessError("LIVERY_DECISION_REQUIRED", "BLOCKED")
     return spec
 
 

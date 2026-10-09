@@ -98,6 +98,17 @@ def validate(kind: str, data: dict) -> list[dict]:
             required_checks.add("SUPPORT-FLIGHT-PROFILES")
         if not required_checks.issubset(local_ids):
             errors.append({"code": "CONFIGURATION_CRITERIA_REQUIRED", "location": ["criteria"]})
+        liveries = data["liveries"]
+        if liveries["decision"] != "pending" and liveries["source"] == "unanswered":
+            errors.append({"code": "LIVERY_USER_DECISION_REQUIRED", "location": ["liveries"]})
+        selections = liveries.get("selections", [])
+        targets = [(s["group"], s.get("unit")) for s in selections]
+        if len(targets) != len(set(targets)):
+            errors.append({"code": "DUPLICATE_LIVERY_TARGET", "location": ["liveries", "selections"]})
+        if "AIRCRAFT-LIVERIES" not in local_ids:
+            errors.append({"code": "LIVERY_LOCAL_CRITERION_REQUIRED", "location": ["criteria"]})
+        if liveries["decision"] == "custom" and not any(c["id"] == "LIVERIES-VISIBLE" and c["level"] == "client" for c in data["criteria"]):
+            errors.append({"code": "LIVERY_CLIENT_CRITERION_REQUIRED", "location": ["criteria"]})
         for index, decision in enumerate(data["design_decisions"]):
             if decision["status"] == "confirmed" and decision["source"] == "agent-proposal":
                 errors.append({"code": "USER_CONFIRMATION_REQUIRED", "location": ["design_decisions", index]})

@@ -1,4 +1,4 @@
-schema_version: "1.4"
+schema_version: "1.5"
 classification: public-approved
 mission:
   schema_version: "1.0"
@@ -23,6 +23,10 @@ constraints: [No external mods are required.]
 assumptions: [This is a synthetic example rather than a runtime-validated mission.]
 open_questions: []
 support_flights: []
+liveries:
+  decision: default
+  source: user-confirmation
+  evidence: Synthetic user chose to keep the default aircraft liveries.
 configuration:
   carrier_present: false
   awacs_present: false
@@ -40,6 +44,7 @@ communications:
   source: user-confirmation
   evidence: Synthetic user declined a comm-plan after being asked.
 criteria:
+  - {id: AIRCRAFT-LIVERIES, statement: Aircraft keep default liveries without unreviewed overrides., level: local}
   - {id: UNIT-TYPES, statement: All unit type identifiers match a verified installation catalog., level: local}
   - {id: AIRCRAFT-LOADOUTS, statement: Both aircraft have the approved clean pylons and full internal fuel., level: local}
   - {id: AI-SKILL, statement: Any AI units use High unless an explicit override was reviewed., level: local}
