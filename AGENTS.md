@@ -36,6 +36,8 @@ and obtain user choices for support/launch platform, SAM and victory/failure
 conditions before implementation. Proposals and silence are not confirmation.
 Also review carrier escort/placement and aircraft composition/loadouts. Default
 AI to veteran (`High`); verify installed unit IDs and AWACS station orbit/altitude.
+Specs define cruise/mission altitudes and orbit areas for AWACS/tankers, plus
+tanker models and refueling compatibility. Review support profiles before build.
 See docs/mission-quality.md for checks and handling user feedback after a DCS test.
 
 ## Structured GitHub issues

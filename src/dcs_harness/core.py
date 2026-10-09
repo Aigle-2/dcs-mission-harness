@@ -74,6 +74,18 @@ def validate(kind: str, data: dict) -> list[dict]:
         if len(topics) != len(required_topics) or set(topics) != required_topics:
             errors.append({"code": "DESIGN_TOPICS_REQUIRED_ONCE", "location": ["design_decisions"]})
         configuration = data["configuration"]
+        support = data["support_flights"]
+        groups = [flight["group"] for flight in support]
+        if len(set(groups)) != len(groups):
+            errors.append({"code": "DUPLICATE_SUPPORT_GROUP", "location": ["support_flights"]})
+        if configuration["awacs_present"] != any(f["role"] == "awacs" for f in support):
+            errors.append({"code": "AWACS_PRESENCE_MISMATCH", "location": ["support_flights"]})
+        for index, flight in enumerate(support):
+            if flight["status"] == "confirmed" and flight["source"] == "agent-proposal":
+                errors.append({"code": "USER_CONFIRMATION_REQUIRED", "location": ["support_flights", index]})
+            orbit = flight["orbit"]
+            if orbit["pattern"] == "Race-Track" and orbit["start"] == orbit["end"]:
+                errors.append({"code": "DEGENERATE_SUPPORT_ORBIT", "location": ["support_flights", index, "orbit"]})
         if configuration["ai_skill_source"] == "default-policy" and configuration["ai_skill"] != "High":
             errors.append({"code": "VETERAN_DEFAULT_REQUIRED", "location": ["configuration", "ai_skill"]})
         local_ids = {c["id"] for c in data["criteria"] if c["level"] == "local"}
@@ -82,6 +94,8 @@ def validate(kind: str, data: dict) -> list[dict]:
             required_checks.update({"CARRIER-GROUP", "CARRIER-PLACEMENT"})
         if configuration["awacs_present"]:
             required_checks.add("AWACS-ORBIT")
+        if support:
+            required_checks.add("SUPPORT-FLIGHT-PROFILES")
         if not required_checks.issubset(local_ids):
             errors.append({"code": "CONFIGURATION_CRITERIA_REQUIRED", "location": ["criteria"]})
         for index, decision in enumerate(data["design_decisions"]):
@@ -90,7 +104,7 @@ def validate(kind: str, data: dict) -> list[dict]:
             if decision["status"] == "not-applicable" and (
                 decision["topic"] == "aircraft-loadouts"
                 or (configuration["carrier_present"] and decision["topic"] in {"battlegroup", "carrier-placement"})
-                or (configuration["awacs_present"] and decision["topic"] == "support")
+                or (support and decision["topic"] == "support")
             ):
                 errors.append({"code": "APPLICABLE_DESIGN_CHOICE_REQUIRED", "location": ["design_decisions", index]})
         comm = data["communications"]

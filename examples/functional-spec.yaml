@@ -1,4 +1,4 @@
-schema_version: "1.2"
+schema_version: "1.3"
 classification: public-approved
 mission:
   schema_version: "1.0"
@@ -22,6 +22,7 @@ failure: The training duration expires before both players arrive.
 constraints: [No external mods are required.]
 assumptions: [This is a synthetic example rather than a runtime-validated mission.]
 open_questions: []
+support_flights: []
 configuration:
   carrier_present: false
   awacs_present: false

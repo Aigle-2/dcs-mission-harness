@@ -70,8 +70,20 @@ version/hash and the exact identifier in implementation evidence. If uncertain,
 inspect readable installed files without executing them or ask the user; leave
 the check BLOCKED until resolved. Never silently substitute a different variant.
 
-For AWACS, review launch platform, climb, station area, altitude reference and
-altitude, speed, orbit pattern and duration. Inspect reference archives as data,
+Define cruise/transit and mission/on-station altitudes in the spec for each flight;
+for AWACS and tankers record them in `support_flights` with explicit ft/m and MSL
+reference, group name and exact aircraft type. Define each orbit's pattern and
+geographic area: center/radius for a circle, or distinct endpoints for a racetrack.
+For each tanker specify its model, refueling system (boom or probe/drogue) and
+receiver aircraft. Verify compatibility against installed module capabilities.
+Review these choices with the user; unresolved proposals block registration.
+Use an empty list only when no AWACS/tankers are requested. Keep altitude/area
+choices visible in the readable spec, not solely in build scripts. Do not silently
+add tankers to scenarios that do not request them. Add local criterion
+`SUPPORT-FLIGHT-PROFILES` when any support flight is present.
+
+For AWACS and tankers, review launch platform, climb, station area, altitude
+reference and altitude, speed, orbit pattern and duration. Inspect references as data,
 never execute their Lua. At station verify an actual `Orbit` task on a route
 waypoint (commonly Turning Point), not an invented waypoint type called Orbit.
 For a racetrack verify its route geometry too. Keep station waypoint altitude and

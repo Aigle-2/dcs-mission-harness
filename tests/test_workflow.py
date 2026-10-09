@@ -8,6 +8,18 @@ from dcs_harness.core import HarnessError, load_document, validate
 
 ROOT = Path(__file__).resolve().parents[1]
 
+def support_flight(role='awacs'):
+    flight = {'group': 'Synthetic support', 'role': role, 'aircraft': 'Synthetic type',
+              'cruise_altitude': {'value': 25000, 'unit': 'ft', 'reference': 'MSL'},
+              'mission_altitude': {'value': 7000, 'unit': 'm', 'reference': 'MSL'},
+              'orbit': {'pattern': 'Race-Track', 'start': {'latitude': 10, 'longitude': 20},
+                        'end': {'latitude': 11, 'longitude': 20}},
+              'status': 'confirmed', 'source': 'user-confirmation',
+              'evidence': 'Synthetic user reviewed type, altitudes and orbit.'}
+    if role == 'tanker':
+        flight.update(refueling_system='probe-drogue', receivers=['Synthetic receiver'])
+    return flight
+
 class WorkflowTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -73,6 +85,8 @@ class WorkflowTests(unittest.TestCase):
 
     def test_awacs_requires_support_review_and_local_orbit_check(self):
         self.spec['configuration']['awacs_present'] = True
+        self.spec['support_flights'] = [support_flight()]
+        self.spec['criteria'].append({'id': 'SUPPORT-FLIGHT-PROFILES', 'level': 'local', 'statement': 'Support flight profiles match the saved mission.'})
         self.assertEqual({e['code'] for e in validate('functional-spec', self.spec)},
                          {'CONFIGURATION_CRITERIA_REQUIRED', 'APPLICABLE_DESIGN_CHOICE_REQUIRED'})
         self.spec['design_decisions'][0].update(status='confirmed', source='user-request')
@@ -80,6 +94,63 @@ class WorkflowTests(unittest.TestCase):
         self.assertIn('CONFIGURATION_CRITERIA_REQUIRED', {e['code'] for e in validate('functional-spec', self.spec)})
         self.spec['criteria'][-1]['level'] = 'local'
         self.assertEqual(validate('functional-spec', self.spec), [])
+
+    def test_support_flight_requires_both_altitudes_type_and_orbit(self):
+        self.spec['support_flights'] = [support_flight(role='tanker')]
+        self.spec['design_decisions'][0].update(status='confirmed', source='user-request')
+        self.spec['criteria'].append({'id': 'SUPPORT-FLIGHT-PROFILES', 'level': 'local', 'statement': 'Support flight profiles match the saved mission.'})
+        self.assertEqual(validate('functional-spec', self.spec), [])
+        for key in ('aircraft', 'cruise_altitude', 'mission_altitude', 'orbit', 'refueling_system', 'receivers'):
+            with self.subTest(key=key):
+                saved = self.spec['support_flights'][0].pop(key)
+                self.assertTrue(validate('functional-spec', self.spec))
+                self.spec['support_flights'][0][key] = saved
+
+    def test_support_proposal_blocks_registration(self):
+        workflow.start(self.root, self.id, self.brief)
+        self.spec['support_flights'] = [support_flight(role='tanker')]
+        self.spec['support_flights'][0].update(status='proposed', source='agent-proposal')
+        self.spec['design_decisions'][0].update(status='confirmed', source='user-request')
+        self.spec['criteria'].append({'id': 'SUPPORT-FLIGHT-PROFILES', 'level': 'local', 'statement': 'Support flight profiles match the saved mission.'})
+        self.save_spec()
+        with self.assertRaisesRegex(HarnessError, 'SUPPORT_FLIGHT_REVIEW_REQUIRED'):
+            workflow.specification(self.root, self.id, self.specfile)
+
+    def test_support_identity_review_and_geometry(self):
+        self.spec['support_flights'] = [support_flight(role='tanker')]
+        self.spec['design_decisions'][0].update(status='confirmed', source='user-request')
+        self.spec['criteria'].append({'id': 'SUPPORT-FLIGHT-PROFILES', 'level': 'local', 'statement': 'Support flight profiles match the saved mission.'})
+        flight = self.spec['support_flights'][0]
+        flight['orbit']['end'] = dict(flight['orbit']['start'])
+        flight['source'] = 'agent-proposal'
+        self.spec['support_flights'].append(flight)
+        self.assertEqual({e['code'] for e in validate('functional-spec', self.spec)},
+                         {'DEGENERATE_SUPPORT_ORBIT', 'USER_CONFIRMATION_REQUIRED', 'DUPLICATE_SUPPORT_GROUP'})
+
+    def test_support_altitude_units_and_coordinates_are_explicit(self):
+        self.spec['support_flights'] = [support_flight(role='tanker')]
+        for value in ({'value': 20000}, {'value': -1, 'unit': 'ft', 'reference': 'MSL'},
+                      {'value': 20000, 'unit': 'feet', 'reference': 'MSL'}):
+            self.spec['support_flights'][0]['cruise_altitude'] = value
+            self.assertTrue(validate('functional-spec', self.spec))
+        self.spec['support_flights'][0]['cruise_altitude'] = {'value': 6000, 'unit': 'm', 'reference': 'MSL'}
+        self.spec['support_flights'][0]['orbit']['start']['latitude'] = 91
+        self.assertTrue(validate('functional-spec', self.spec))
+
+    def test_awacs_inventory_must_match_presence(self):
+        self.spec['configuration']['awacs_present'] = True
+        self.assertIn('AWACS_PRESENCE_MISMATCH', {e['code'] for e in validate('functional-spec', self.spec)})
+
+    def test_circle_profile_and_required_local_check(self):
+        self.spec['support_flights'] = [support_flight(role='tanker')]
+        self.spec['design_decisions'][0].update(status='confirmed', source='user-request')
+        self.spec['support_flights'][0]['orbit'] = {
+            'pattern': 'Circle', 'center': {'latitude': 10, 'longitude': 20}, 'radius_nm': 5}
+        self.assertIn('CONFIGURATION_CRITERIA_REQUIRED', {e['code'] for e in validate('functional-spec', self.spec)})
+        self.spec['criteria'].append({'id': 'SUPPORT-FLIGHT-PROFILES', 'level': 'local', 'statement': 'Support flight profiles match the saved mission.'})
+        self.assertEqual(validate('functional-spec', self.spec), [])
+        self.spec['support_flights'][0]['orbit']['radius_nm'] = 0
+        self.assertTrue(validate('functional-spec', self.spec))
 
     def test_unit_loadout_skill_checks_cannot_be_omitted(self):
         for key in ('UNIT-TYPES', 'AIRCRAFT-LOADOUTS', 'AI-SKILL'):

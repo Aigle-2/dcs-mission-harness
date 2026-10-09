@@ -82,6 +82,8 @@ def specification(root: Path, run_id: str, file: Path) -> dict:
         raise HarnessError("SPEC_HAS_OPEN_QUESTIONS", "BLOCKED")
     if any(d["status"] == "proposed" for d in spec["design_decisions"]):
         raise HarnessError("DESIGN_REVIEW_REQUIRED", "BLOCKED")
+    if any(f["status"] == "proposed" for f in spec["support_flights"]):
+        raise HarnessError("SUPPORT_FLIGHT_REVIEW_REQUIRED", "BLOCKED")
     if spec["communications"]["decision"] == "pending":
         raise HarnessError("COMM_PLAN_DECISION_REQUIRED", "BLOCKED")
     if spec["mission"]["id"] != run_id:
@@ -109,6 +111,8 @@ def unchanged_spec(path: Path, state: dict) -> dict:
     require_valid("functional-spec", spec)
     if any(d["status"] == "proposed" for d in spec["design_decisions"]) or spec["communications"]["decision"] == "pending":
         raise HarnessError("DESIGN_REVIEW_REQUIRED", "BLOCKED")
+    if any(f["status"] == "proposed" for f in spec["support_flights"]):
+        raise HarnessError("SUPPORT_FLIGHT_REVIEW_REQUIRED", "BLOCKED")
     return spec
 
 
