@@ -34,6 +34,9 @@ match the accepted spec and artifact hashes. A local PASS cannot certify DCS.
 Ask about a comm-plan, present radio compatibility and usage over mission phases,
 and obtain user choices for support/launch platform, SAM and victory/failure
 conditions before implementation. Proposals and silence are not confirmation.
+Also review carrier escort/placement and aircraft composition/loadouts. Default
+AI to veteran (`High`); verify installed unit IDs and AWACS station orbit/altitude.
+See docs/mission-quality.md for checks and handling user feedback after a DCS test.
 
 ## Structured GitHub issues
 

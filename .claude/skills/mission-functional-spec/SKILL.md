@@ -41,6 +41,49 @@ user requirements count as confirmation; do not ask for them again. A proposed
 SAM or AWACS is not a harmless implementation default. Review other choices
 that materially change gameplay too. Pending choices block implementation.
 
+If a carrier is present, ask for its battlegroup composition: escort types and
+counts, roles and spacing. Do not silently create a lone carrier or add escorts.
+Ask for placement before choosing coordinates: operating area, distance from the
+objective/coast, route, heading and desired launch/recovery constraints. Offer
+concrete choices if requested and obtain review. Record `battlegroup` and
+`carrier-placement`; only mark them not applicable when no carrier is present.
+
+Always review `aircraft-loadouts`: aircraft variants, flight composition and roles,
+weapons per station, tanks, fuel and countermeasures. Include hostile aircraft
+and support aircraft where relevant. Unarmed pylons are an explicit reviewed
+choice, never an unnoticed generator default. Verify station/CLSID compatibility
+for the installed module. Preserve earlier confirmed choices rather than asking
+again. Summarize per-flight configurations in the readable spec.
+
+Set `configuration.carrier_present` and `awacs_present` from the scenario.
+The harness default AI level is veteran, encoded as DCS `High`; this is a harness
+policy alias, not a claim about a translated DCS label. Record `ai_skill: High`
+and `ai_skill_source: default-policy`. Ask about exceptions when skill materially
+affects the requested balance, or follow an explicit user choice; document each
+per-group override in the spec. Apply the default to AI units, never client/player
+slots, and inspect actual saved skills rather than trusting generator defaults.
+
+Before implementation verify exact unit type identifiers against the target DCS
+installation/module definitions or a versioned verified catalog. A display name,
+old reference mission or generator class is insufficient. Record private source,
+version/hash and the exact identifier in implementation evidence. If uncertain,
+inspect readable installed files without executing them or ask the user; leave
+the check BLOCKED until resolved. Never silently substitute a different variant.
+
+For AWACS, review launch platform, climb, station area, altitude reference and
+altitude, speed, orbit pattern and duration. Inspect reference archives as data,
+never execute their Lua. At station verify an actual `Orbit` task on a route
+waypoint (commonly Turning Point), not an invented waypoint type called Orbit.
+For a racetrack verify its route geometry too. Keep station waypoint altitude and
+Orbit altitude consistent; distinguish a low takeoff waypoint from station
+altitude. DCS task speeds may be m/s while builder arguments are km/h. Verify
+units and BARO/RADIO reference explicitly. A configured task does not prove the
+AI reached station: require a separate runtime check of climb/orbit behavior.
+
+Add local criteria `UNIT-TYPES`, `AIRCRAFT-LOADOUTS` and `AI-SKILL`; for carriers
+also `CARRIER-GROUP` and `CARRIER-PLACEMENT`; for AWACS also `AWACS-ORBIT`.
+Use `docs/mission-quality.md` for concrete verification and feedback handling.
+
 For an enabled comm-plan, first list the compatible frequency bands, modulation,
 channel limits and documentation for every physical radio on each aircraft type.
 Distinguish the DCS implementation from real-aircraft capabilities; flag unknown

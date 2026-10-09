@@ -1,10 +1,12 @@
 # Communications and design review
 
-Functional specs use version 1.1. Support aircraft and launch platform, air
+Functional specs use version 1.2. Support aircraft and launch platform, air
 defence composition, and victory/failure conditions need recorded user choices.
 An explicit request already supplies a choice; an agent's proposal does not.
 Features absent from the scenario may be marked not applicable. Ask whether a
-comm-plan is wanted. Pending decisions block `mission spec`. Older 1.0 specs
+comm-plan is wanted. Also review aircraft loadouts and applicable carrier escort
+and placement choices; see [mission quality](mission-quality.md).
+Pending decisions block `mission spec`. Older specs
 cannot continue implementation/verification; create a new run and review them.
 The CLI checks records, not the identity of the person supplying them. Agents
 must never manufacture approval quotes or treat silence as confirmation.

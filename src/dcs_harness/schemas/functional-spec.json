@@ -1,14 +1,24 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object", "additionalProperties": false,
-  "required": ["schema_version", "classification", "mission", "purpose", "player_experience", "flow", "success", "failure", "constraints", "assumptions", "open_questions", "criteria", "design_decisions", "communications"],
+  "required": ["schema_version", "classification", "mission", "purpose", "player_experience", "flow", "success", "failure", "constraints", "assumptions", "open_questions", "criteria", "design_decisions", "communications", "configuration"],
   "properties": {
-    "schema_version": {"const": "1.1"},
-    "design_decisions": {"type": "array", "minItems": 3, "items": {
+    "schema_version": {"const": "1.2"},
+    "configuration": {
+      "type": "object", "additionalProperties": false,
+      "required": ["carrier_present", "awacs_present", "ai_skill", "ai_skill_source"],
+      "properties": {
+        "carrier_present": {"type": "boolean"},
+        "awacs_present": {"type": "boolean"},
+        "ai_skill": {"enum": ["Average", "Good", "High", "Excellent", "Random"]},
+        "ai_skill_source": {"enum": ["default-policy", "user-request", "user-confirmation"]}
+      }
+    },
+    "design_decisions": {"type": "array", "minItems": 6, "items": {
       "type": "object", "additionalProperties": false,
       "required": ["topic", "choice", "status", "source", "evidence"],
       "properties": {
-        "topic": {"enum": ["support", "air-defence", "victory"]},
+        "topic": {"enum": ["support", "air-defence", "victory", "battlegroup", "carrier-placement", "aircraft-loadouts"]},
         "choice": {"type": "string", "minLength": 5},
         "status": {"enum": ["proposed", "confirmed", "not-applicable"]},
         "source": {"enum": ["agent-proposal", "user-request", "user-confirmation"]},

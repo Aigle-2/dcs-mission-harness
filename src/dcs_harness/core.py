@@ -70,11 +70,29 @@ def validate(kind: str, data: dict) -> list[dict]:
         if not any(criterion["level"] == "local" for criterion in data["criteria"]):
             errors.append({"code": "LOCAL_CRITERION_REQUIRED", "location": ["criteria"]})
         topics = [decision["topic"] for decision in data["design_decisions"]]
-        if len(topics) != 3 or set(topics) != {"support", "air-defence", "victory"}:
+        required_topics = {"support", "air-defence", "victory", "battlegroup", "carrier-placement", "aircraft-loadouts"}
+        if len(topics) != len(required_topics) or set(topics) != required_topics:
             errors.append({"code": "DESIGN_TOPICS_REQUIRED_ONCE", "location": ["design_decisions"]})
+        configuration = data["configuration"]
+        if configuration["ai_skill_source"] == "default-policy" and configuration["ai_skill"] != "High":
+            errors.append({"code": "VETERAN_DEFAULT_REQUIRED", "location": ["configuration", "ai_skill"]})
+        local_ids = {c["id"] for c in data["criteria"] if c["level"] == "local"}
+        required_checks = {"UNIT-TYPES", "AIRCRAFT-LOADOUTS", "AI-SKILL"}
+        if configuration["carrier_present"]:
+            required_checks.update({"CARRIER-GROUP", "CARRIER-PLACEMENT"})
+        if configuration["awacs_present"]:
+            required_checks.add("AWACS-ORBIT")
+        if not required_checks.issubset(local_ids):
+            errors.append({"code": "CONFIGURATION_CRITERIA_REQUIRED", "location": ["criteria"]})
         for index, decision in enumerate(data["design_decisions"]):
             if decision["status"] == "confirmed" and decision["source"] == "agent-proposal":
                 errors.append({"code": "USER_CONFIRMATION_REQUIRED", "location": ["design_decisions", index]})
+            if decision["status"] == "not-applicable" and (
+                decision["topic"] == "aircraft-loadouts"
+                or (configuration["carrier_present"] and decision["topic"] in {"battlegroup", "carrier-placement"})
+                or (configuration["awacs_present"] and decision["topic"] == "support")
+            ):
+                errors.append({"code": "APPLICABLE_DESIGN_CHOICE_REQUIRED", "location": ["design_decisions", index]})
         comm = data["communications"]
         if comm["decision"] != "pending" and comm["source"] == "unanswered":
             errors.append({"code": "COMM_USER_DECISION_REQUIRED", "location": ["communications"]})

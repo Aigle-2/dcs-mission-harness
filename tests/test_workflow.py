@@ -37,7 +37,61 @@ class WorkflowTests(unittest.TestCase):
                     'spec_sha256': state['spec_sha256'], 'artifact_sha256': state['artifact_sha256'],
                     'checks': [{'criterion': 'SLOT-COUNT', 'status': 'PASS', 'evidence': 'Synthetic count checked.'},
                                {'criterion': 'OBJECTIVE-COMPLETION', 'status': 'SKIPPED', 'evidence': 'DCS clients are unavailable.'}]}
+        evidence['checks'].extend(
+            {'criterion': c['id'], 'status': 'PASS', 'evidence': 'Synthetic configuration checked.'}
+            for c in self.spec['criteria'] if c['id'] not in {'SLOT-COUNT', 'OBJECTIVE-COMPLETION'})
         return path, evidence
+
+    def test_carrier_choices_cannot_be_missing_or_inapplicable(self):
+        self.spec['configuration']['carrier_present'] = True
+        for key in ('CARRIER-GROUP', 'CARRIER-PLACEMENT'):
+            self.spec['criteria'].append({'id': key, 'level': 'local', 'statement': 'Reviewed naval configuration matches saved artifact.'})
+        self.assertIn('APPLICABLE_DESIGN_CHOICE_REQUIRED', {e['code'] for e in validate('functional-spec', self.spec)})
+        for d in self.spec['design_decisions']:
+            if d['topic'] in {'battlegroup', 'carrier-placement'}:
+                d.update(status='confirmed', source='user-confirmation', evidence='Synthetic user reviewed the naval choices.')
+        self.assertEqual(validate('functional-spec', self.spec), [])
+        self.spec['design_decisions'].pop(3)
+        self.assertTrue(validate('functional-spec', self.spec))
+
+    def test_proposed_loadout_blocks_spec_registration(self):
+        workflow.start(self.root, self.id, self.brief)
+        self.spec['design_decisions'][-1].update(status='proposed', source='agent-proposal')
+        self.save_spec()
+        with self.assertRaisesRegex(HarnessError, 'DESIGN_REVIEW_REQUIRED'):
+            workflow.specification(self.root, self.id, self.specfile)
+
+    def test_loadouts_cannot_be_marked_inapplicable(self):
+        self.spec['design_decisions'][-1]['status'] = 'not-applicable'
+        self.assertIn('APPLICABLE_DESIGN_CHOICE_REQUIRED', {e['code'] for e in validate('functional-spec', self.spec)})
+
+    def test_default_veteran_and_explicit_user_override(self):
+        self.spec['configuration']['ai_skill'] = 'Average'
+        self.assertIn('VETERAN_DEFAULT_REQUIRED', {e['code'] for e in validate('functional-spec', self.spec)})
+        self.spec['configuration']['ai_skill_source'] = 'user-request'
+        self.assertEqual(validate('functional-spec', self.spec), [])
+
+    def test_awacs_requires_support_review_and_local_orbit_check(self):
+        self.spec['configuration']['awacs_present'] = True
+        self.assertEqual({e['code'] for e in validate('functional-spec', self.spec)},
+                         {'CONFIGURATION_CRITERIA_REQUIRED', 'APPLICABLE_DESIGN_CHOICE_REQUIRED'})
+        self.spec['design_decisions'][0].update(status='confirmed', source='user-request')
+        self.spec['criteria'].append({'id': 'AWACS-ORBIT', 'level': 'runtime', 'statement': 'AWACS station orbit matches reviewed configuration.'})
+        self.assertIn('CONFIGURATION_CRITERIA_REQUIRED', {e['code'] for e in validate('functional-spec', self.spec)})
+        self.spec['criteria'][-1]['level'] = 'local'
+        self.assertEqual(validate('functional-spec', self.spec), [])
+
+    def test_unit_loadout_skill_checks_cannot_be_omitted(self):
+        for key in ('UNIT-TYPES', 'AIRCRAFT-LOADOUTS', 'AI-SKILL'):
+            with self.subTest(key=key):
+                item = next(c for c in self.spec['criteria'] if c['id'] == key)
+                self.spec['criteria'].remove(item)
+                self.assertIn('CONFIGURATION_CRITERIA_REQUIRED', {e['code'] for e in validate('functional-spec', self.spec)})
+                self.spec['criteria'].append(item)
+
+    def test_historical_spec_requires_new_review(self):
+        self.spec['schema_version'] = '1.1'
+        self.assertTrue(validate('functional-spec', self.spec))
 
     def verify(self, evidence):
         self.evidencefile.write_text(json.dumps(evidence))

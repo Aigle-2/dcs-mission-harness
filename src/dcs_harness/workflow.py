@@ -64,7 +64,7 @@ def start(root: Path, run_id: str, brief: Path) -> dict:
                   next_skill="mission-functional-spec",
                   skill_file=".agents/skills/mission-functional-spec/SKILL.md",
                   files={"brief": f"runs/{run_id}/brief.md", "spec": f"runs/{run_id}/functional-spec.yaml"},
-                  agent_action="Read the skill, ask about a comm-plan, and obtain user decisions on support, air defence and victory before registering the spec.")
+                  agent_action="Read the skill; review communications, support, air defence, victory, aircraft/loadouts and any carrier escort/placement. Apply veteran AI defaults and verify exact installed unit types.")
 
 
 def status(root: Path, run_id: str) -> dict:

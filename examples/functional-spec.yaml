@@ -1,4 +1,4 @@
-schema_version: "1.1"
+schema_version: "1.2"
 classification: public-approved
 mission:
   schema_version: "1.0"
@@ -22,15 +22,26 @@ failure: The training duration expires before both players arrive.
 constraints: [No external mods are required.]
 assumptions: [This is a synthetic example rather than a runtime-validated mission.]
 open_questions: []
+configuration:
+  carrier_present: false
+  awacs_present: false
+  ai_skill: High
+  ai_skill_source: default-policy
 design_decisions:
   - {topic: support, choice: No support aircraft requested., status: not-applicable, source: agent-proposal, evidence: Synthetic navigation brief contains no support aircraft.}
   - {topic: air-defence, choice: No enemy air defence requested., status: not-applicable, source: agent-proposal, evidence: Synthetic navigation brief contains no enemy threats.}
   - {topic: victory, choice: Both players reach the zone., status: confirmed, source: user-confirmation, evidence: Synthetic user confirmed the completion condition.}
+  - {topic: battlegroup, choice: No carrier group requested., status: not-applicable, source: agent-proposal, evidence: Synthetic exercise has no carrier group.}
+  - {topic: carrier-placement, choice: No carrier placement needed., status: not-applicable, source: agent-proposal, evidence: Synthetic exercise has no carrier group.}
+  - {topic: aircraft-loadouts, choice: Two navigation aircraft with clean pylons and full internal fuel., status: confirmed, source: user-confirmation, evidence: Synthetic user explicitly selected clean training aircraft.}
 communications:
   decision: declined
   source: user-confirmation
   evidence: Synthetic user declined a comm-plan after being asked.
 criteria:
+  - {id: UNIT-TYPES, statement: All unit type identifiers match a verified installation catalog., level: local}
+  - {id: AIRCRAFT-LOADOUTS, statement: Both aircraft have the approved clean pylons and full internal fuel., level: local}
+  - {id: AI-SKILL, statement: Any AI units use High unless an explicit override was reviewed., level: local}
   - id: SLOT-COUNT
     statement: The archive contains two blue client aircraft.
     level: local
