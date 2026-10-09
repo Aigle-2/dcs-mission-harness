@@ -41,6 +41,28 @@ user requirements count as confirmation; do not ask for them again. A proposed
 SAM or AWACS is not a harmless implementation default. Review other choices
 that materially change gameplay too. Pending choices block implementation.
 
+In the final readable spec, label every mission-setting choice with `[Proposed]`
+when selected/suggested by the agent, or `[Decided]` when explicitly supplied or
+confirmed by the user. Delegating a choice ("you choose") permits a proposal;
+it does not confirm the resulting value. Present all delegated choices together
+in the final spec and request review before implementation. Keep the selected
+values visible next to their labels, with origin and actual confirmation evidence.
+Use `[NotApplicable]` only for features absent from the scenario.
+Record additional choices in `design_decisions` under unique `parameter:<slug>`
+topics, for example weather, timing, target port or trigger distance. This covers
+agent-selected mission defaults too unless explicitly preapproved by the user.
+Keep proposed/user-confirmed status consistent with the displayed labels;
+never manufacture a source or evidence to advance the workflow. A confirmed
+proposal becomes `[Decided]`, retaining its initial proposal in the private spec
+history and its actual user confirmation in the current record. Unconfirmed
+parameter decisions block registration just like the standard design topics.
+A user's explicit approval of the complete presented spec can confirm all its
+displayed proposals together. Record which revision was approved; do not extend
+that approval to later changes or ask again for choices already confirmed.
+Use `mission review --run <id> --file <spec>` to render a private labeled review
+appendix, include it in the final readable spec, and read docs/mission-quality.md.
+Rendering the appendix does not accept the spec or supply human approval.
+
 If a carrier is present, ask for its battlegroup composition: escort types and
 counts, roles and spacing. Do not silently create a lone carrier or add escorts.
 Ask for placement before choosing coordinates: operating area, distance from the
@@ -150,7 +172,8 @@ and validation details. Add local criteria `COMM-BRIEFING` and `COMM-KNEEBOARD`,
 and client criterion `COMM-DOCS-VISIBLE` for briefing/kneeboard access and
 readability in every playable module. These criteria are required by the CLI.
 
-Record non-blocking implementation defaults as assumptions. If an answer is
+Record purely technical implementation assumptions separately; mission-setting
+defaults must follow the proposal/review rule above. If an answer is
 pending, populate `open_questions` and stop the implementation transition.
 Preserve the user-authorized scope; do not add enemies, mods or complex systems
 to make a simple mission more impressive.

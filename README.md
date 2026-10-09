@@ -60,6 +60,7 @@ Set the private workspace, then use these commands from the checkout:
 
 ```text
 dcs-harness mission start --run synthetic-training --brief-file <private-brief.md>
+dcs-harness mission review --run synthetic-training --file <private-functional-spec.yaml>
 dcs-harness mission spec --run synthetic-training --file <private-functional-spec.yaml>
 dcs-harness mission implement --run synthetic-training --artifact <built-mission.miz>
 dcs-harness mission verify --run synthetic-training --file <private-verification.json>
@@ -70,6 +71,10 @@ Start returns `next_skill: mission-functional-spec`. The current coding agent
 reads that skill and produces the functional spec before building the mission;
 the CLI does not launch an LLM or contain a general mission generator. See the
 synthetic functional-spec example. Unresolved questions block implementation.
+In the final readable spec, agent-selected and delegated choices use `[Proposed]`;
+user-supplied/confirmed choices use `[Decided]`. Additional parameter decisions
+are recorded as `parameter:<slug>` topics and block registration until confirmed.
+`mission review` generates a private labeled appendix without accepting the spec.
 Functional-spec version 1.5 requires user decisions on communications,
 support aircraft/launch platform, air defence and victory conditions. Proposed
 choices block the transition. For a comm-plan, first list each radio's compatible

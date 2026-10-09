@@ -34,6 +34,9 @@ match the accepted spec and artifact hashes. A local PASS cannot certify DCS.
 Ask about a comm-plan, present radio compatibility and usage over mission phases,
 and obtain user choices for support/launch platform, SAM and victory/failure
 conditions before implementation. Proposals and silence are not confirmation.
+Label agent-selected mission parameters `[Proposed]` in the final readable spec,
+including delegated choices. Label user-supplied/confirmed choices `[Decided]`.
+Record extra choices as parameter:<slug> design topics; unconfirmed proposals block.
 Also review carrier escort/placement and aircraft composition/loadouts. Offer
 default or user-selected liveries by flight/aircraft and record the choice.
 Default AI to veteran (`High`); verify installed unit IDs and AWACS station orbit/altitude.

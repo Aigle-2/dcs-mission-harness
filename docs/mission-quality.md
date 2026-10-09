@@ -7,6 +7,37 @@ is present. Aircraft/loadout review is mandatory, including for unarmed training
 Veteran means `High` under harness policy; user overrides require a user source.
 Old runs remain historical; use a new run to review and implement a revision.
 
+## Visible decision provenance
+
+The final readable spec labels mission choices `[Proposed]` for agent proposals
+and `[Decided]` for explicit user choices/confirmation. Delegation authorizes
+preparing a proposal, not approving the resulting value. Include each delegated
+setting's actual value in the spec and collect review of those choices before
+implementation. Features outside the scenario use `[NotApplicable]`.
+
+`design_decisions` accepts the six mandatory topics plus unique
+`parameter:<slug>` topics for other mission parameters. Examples include weather,
+timing, port and trigger distance. Agent-selected mission defaults also belong
+here unless explicitly preapproved. All proposed entries block `mission spec`;
+confirmed entries require a user source and actual evidence. After confirmation,
+show `[Decided]` and retain the earlier proposal in private revision history.
+An explicit approval of the complete presented spec can confirm its displayed
+proposals together; record the reviewed revision and do not extend approval to
+subsequent edits or ask again for unchanged, already confirmed choices.
+Technical implementation details that do not change mission design can remain
+assumptions; that is not a way to conceal a mission-setting proposal.
+
+`mission review --run <id> --file <spec>` writes a private
+`functional-spec.review.md` appendix with derived tags, choices, sources and
+evidence for design topics, support profiles, communications and liveries.
+Include the appendix in the final readable spec alongside full plan details.
+Review generation can run with proposed choices, leaves the run in
+SPECIFICATION_PENDING, and does not imply acceptance or a human reply. The
+command preserves numbered appendices under the private run's `reviews/` folder.
+The
+schema checks the records, not their truth; the agent must keep every selected
+mission parameter represented and never manufacture confirmation evidence.
+
 Offer aircraft livery selection, including keeping defaults. The `liveries`
 record stores pending/default/custom, user source and evidence. Here custom
 means user-selected, including built-in skins; it does not require an external

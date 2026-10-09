@@ -71,7 +71,7 @@ def validate(kind: str, data: dict) -> list[dict]:
             errors.append({"code": "LOCAL_CRITERION_REQUIRED", "location": ["criteria"]})
         topics = [decision["topic"] for decision in data["design_decisions"]]
         required_topics = {"support", "air-defence", "victory", "battlegroup", "carrier-placement", "aircraft-loadouts"}
-        if len(topics) != len(required_topics) or set(topics) != required_topics:
+        if len(topics) != len(set(topics)) or not required_topics.issubset(topics):
             errors.append({"code": "DESIGN_TOPICS_REQUIRED_ONCE", "location": ["design_decisions"]})
         configuration = data["configuration"]
         support = data["support_flights"]

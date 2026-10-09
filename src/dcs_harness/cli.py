@@ -66,12 +66,12 @@ def parser() -> argparse.ArgumentParser:
     commands.add_parser("test")
     command = commands.add_parser("mission")
     sub = command.add_subparsers(dest="action", required=True)
-    for action in ("start", "status", "spec", "implement", "verify"):
+    for action in ("start", "status", "review", "spec", "implement", "verify"):
         child = sub.add_parser(action)
         child.add_argument("--run", required=True)
         if action == "start":
             child.add_argument("--brief-file", type=Path, required=True)
-        elif action in {"spec", "verify"}:
+        elif action in {"review", "spec", "verify"}:
             child.add_argument("--file", type=Path, required=True)
         elif action == "implement":
             child.add_argument("--artifact", type=Path, required=True)
@@ -87,6 +87,8 @@ def execute(args: argparse.Namespace) -> dict:
             return workflow.status(root, args.run)
         if args.action == "spec":
             return workflow.specification(root, args.run, args.file)
+        if args.action == "review":
+            return workflow.review(root, args.run, args.file)
         if args.action == "implement":
             return workflow.implementation(root, args.run, args.artifact)
         return workflow.verify(root, args.run, args.file)

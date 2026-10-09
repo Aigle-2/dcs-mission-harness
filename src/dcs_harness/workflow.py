@@ -105,6 +105,28 @@ def specification(root: Path, run_id: str, file: Path) -> dict:
                   human_approval="NOT_IMPLIED")
 
 
+def review(root: Path, run_id: str, file: Path) -> dict:
+    from .design_review import decision_review
+    spec = load_document(file)
+    document, pending = decision_review(spec)
+    if spec['mission']['id'] != run_id:
+        raise HarnessError('SPEC_RUN_ID_MISMATCH')
+    with locked_run(root, run_id) as (path, state):
+        if state['phase'] != 'SPECIFICATION_PENDING':
+            raise HarnessError('SPEC_REVIEW_TRANSITION_NOT_ALLOWED')
+        target = path / 'functional-spec.review.md'
+        history = path / 'reviews'
+        if target.is_symlink() or history.is_symlink():
+            raise HarnessError('RUN_PATH_ESCAPE')
+        history.mkdir(exist_ok=True)
+        sequence = len(list(history.glob('*.md'))) + 1
+        write_new(history / f'{sequence:04d}.md', document)
+        target.write_text(document, encoding='utf-8')
+    return result('PASS', 'mission.review', run=run_id, proposed=pending,
+                  document=f'runs/{run_id}/functional-spec.review.md',
+                  human_approval='NOT_IMPLIED', phase=state['phase'])
+
+
 def unchanged_spec(path: Path, state: dict) -> dict:
     if digest(path / "spec.accepted.json") != state["spec_sha256"]:
         raise HarnessError("ACCEPTED_SPEC_CHANGED")
