@@ -1,9 +1,33 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object", "additionalProperties": false,
-  "required": ["schema_version", "classification", "mission", "purpose", "player_experience", "flow", "success", "failure", "constraints", "assumptions", "open_questions", "criteria"],
+  "required": ["schema_version", "classification", "mission", "purpose", "player_experience", "flow", "success", "failure", "constraints", "assumptions", "open_questions", "criteria", "design_decisions", "communications"],
   "properties": {
-    "schema_version": {"const": "1.0"},
+    "schema_version": {"const": "1.1"},
+    "design_decisions": {"type": "array", "minItems": 3, "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["topic", "choice", "status", "source", "evidence"],
+      "properties": {
+        "topic": {"enum": ["support", "air-defence", "victory"]},
+        "choice": {"type": "string", "minLength": 5},
+        "status": {"enum": ["proposed", "confirmed", "not-applicable"]},
+        "source": {"enum": ["agent-proposal", "user-request", "user-confirmation"]},
+        "evidence": {"type": "string", "minLength": 10}
+      }
+    }},
+    "communications": {"type": "object", "additionalProperties": false,
+      "required": ["decision", "source", "evidence"],
+      "properties": {
+        "decision": {"enum": ["pending", "enabled", "declined"]},
+        "source": {"enum": ["unanswered", "user-request", "user-confirmation"]},
+        "evidence": {"type": "string", "minLength": 10},
+        "plan": {"type": "object"}
+      },
+      "allOf": [
+        {"if": {"properties": {"decision": {"const": "enabled"}}}, "then": {"required": ["plan"]}},
+        {"if": {"properties": {"decision": {"const": "declined"}}}, "then": {"not": {"required": ["plan"]}}}
+      ]
+    },
     "classification": {"enum": ["private", "public-candidate", "public-approved"]},
     "mission": {"type": "object"},
     "purpose": {"type": "string", "minLength": 10},

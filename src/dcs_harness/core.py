@@ -69,6 +69,37 @@ def validate(kind: str, data: dict) -> list[dict]:
             errors.append({"code": "DUPLICATE_CRITERION", "location": ["criteria"]})
         if not any(criterion["level"] == "local" for criterion in data["criteria"]):
             errors.append({"code": "LOCAL_CRITERION_REQUIRED", "location": ["criteria"]})
+        topics = [decision["topic"] for decision in data["design_decisions"]]
+        if len(topics) != 3 or set(topics) != {"support", "air-defence", "victory"}:
+            errors.append({"code": "DESIGN_TOPICS_REQUIRED_ONCE", "location": ["design_decisions"]})
+        for index, decision in enumerate(data["design_decisions"]):
+            if decision["status"] == "confirmed" and decision["source"] == "agent-proposal":
+                errors.append({"code": "USER_CONFIRMATION_REQUIRED", "location": ["design_decisions", index]})
+        comm = data["communications"]
+        if comm["decision"] != "pending" and comm["source"] == "unanswered":
+            errors.append({"code": "COMM_USER_DECISION_REQUIRED", "location": ["communications"]})
+        if "plan" in comm:
+            errors.extend({**error, "location": ["communications", "plan", *error["location"]]}
+                          for error in validate("comm-plan", comm["plan"]))
+        if comm["decision"] == "enabled":
+            local_ids = {c["id"] for c in data["criteria"] if c["level"] == "local"}
+            if not {"COMM-PRESETS", "COMM-FREQUENCIES"}.issubset(local_ids):
+                errors.append({"code": "COMM_LOCAL_CRITERIA_REQUIRED", "location": ["criteria"]})
+    if kind == "comm-plan" and not errors:
+        net_ids = [net["id"] for net in data["nets"]]
+        assignment_ids = [item["group"] for item in data["assignments"]]
+        preset_ids = [(item["group"], item["radio"], item["channel"]) for item in data["presets"]]
+        usage_ids = [(item["group"], item["phase"], item["radio"]) for item in data["radio_usage"]]
+        inventory_ids = [(item["group"], item["radio"]) for item in data["radio_inventory"]]
+        if any(len(set(ids)) != len(ids) for ids in (net_ids, assignment_ids, preset_ids, usage_ids, inventory_ids)):
+            errors.append({"code": "DUPLICATE_COMM_ENTRY", "location": []})
+        if any(item["net"] not in net_ids for item in [*data["assignments"], *data["presets"], *data["radio_usage"]]):
+            errors.append({"code": "UNKNOWN_COMM_NET", "location": []})
+        expected_usage = {(group, phase, radio) for group, radio in inventory_ids for phase in data["phases"]}
+        if set(usage_ids) != expected_usage:
+            errors.append({"code": "COMPLETE_RADIO_TIMELINE_REQUIRED", "location": ["radio_usage"]})
+        if any((item["group"], item["radio"]) not in inventory_ids for item in data["presets"]):
+            errors.append({"code": "RADIO_INVENTORY_REQUIRED", "location": ["presets"]})
     return errors
 
 

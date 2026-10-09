@@ -64,7 +64,7 @@ def start(root: Path, run_id: str, brief: Path) -> dict:
                   next_skill="mission-functional-spec",
                   skill_file=".agents/skills/mission-functional-spec/SKILL.md",
                   files={"brief": f"runs/{run_id}/brief.md", "spec": f"runs/{run_id}/functional-spec.yaml"},
-                  agent_action="Read the skill and private brief; write and register the functional spec.")
+                  agent_action="Read the skill, ask about a comm-plan, and obtain user decisions on support, air defence and victory before registering the spec.")
 
 
 def status(root: Path, run_id: str) -> dict:
@@ -80,6 +80,10 @@ def specification(root: Path, run_id: str, file: Path) -> dict:
     require_valid("functional-spec", spec)
     if spec["open_questions"]:
         raise HarnessError("SPEC_HAS_OPEN_QUESTIONS", "BLOCKED")
+    if any(d["status"] == "proposed" for d in spec["design_decisions"]):
+        raise HarnessError("DESIGN_REVIEW_REQUIRED", "BLOCKED")
+    if spec["communications"]["decision"] == "pending":
+        raise HarnessError("COMM_PLAN_DECISION_REQUIRED", "BLOCKED")
     if spec["mission"]["id"] != run_id:
         raise HarnessError("SPEC_RUN_ID_MISMATCH")
     with locked_run(root, run_id) as (path, state):
@@ -100,7 +104,12 @@ def specification(root: Path, run_id: str, file: Path) -> dict:
 def unchanged_spec(path: Path, state: dict) -> dict:
     if digest(path / "spec.accepted.json") != state["spec_sha256"]:
         raise HarnessError("ACCEPTED_SPEC_CHANGED")
-    return load_document(path / "spec.accepted.json")
+    spec = load_document(path / "spec.accepted.json")
+    # Historical runs remain readable but cannot bypass the new review gate.
+    require_valid("functional-spec", spec)
+    if any(d["status"] == "proposed" for d in spec["design_decisions"]) or spec["communications"]["decision"] == "pending":
+        raise HarnessError("DESIGN_REVIEW_REQUIRED", "BLOCKED")
+    return spec
 
 
 def implementation(root: Path, run_id: str, artifact: Path) -> dict:
@@ -113,6 +122,9 @@ def implementation(root: Path, run_id: str, artifact: Path) -> dict:
         spec = unchanged_spec(path, state)
         if report["theatre"] != spec["mission"]["theatre"]:
             raise HarnessError("ARTIFACT_THEATRE_MISMATCH")
+        if spec["communications"]["decision"] == "enabled":
+            from .communications import check_archive
+            check_archive(artifact, spec["communications"]["plan"])
         target = path / "mission.miz"
         if target.exists():
             raise HarnessError("REGISTERED_ARTIFACT_ALREADY_EXISTS")
@@ -135,6 +147,9 @@ def verify(root: Path, run_id: str, evidence_file: Path) -> dict:
         spec = unchanged_spec(path, state)
         if digest(path / "mission.miz") != state["artifact_sha256"]:
             raise HarnessError("REGISTERED_ARTIFACT_CHANGED")
+        if spec["communications"]["decision"] == "enabled":
+            from .communications import check_archive
+            check_archive(path / "mission.miz", spec["communications"]["plan"])
         if any(evidence[key] != state[key] for key in ("spec_sha256", "artifact_sha256")):
             raise HarnessError("EVIDENCE_HASH_MISMATCH")
         criteria = {item["id"]: item for item in spec["criteria"]}

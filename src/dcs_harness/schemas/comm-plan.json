@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "nets", "assignments", "presets", "radio_usage", "phases", "radio_inventory"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "phases": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "radio_inventory": {"type": "array", "minItems": 1, "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["group", "aircraft", "radio", "label", "compatible_bands", "source", "notes"],
+      "properties": {
+        "group": {"type": "string", "minLength": 1}, "aircraft": {"type": "string", "minLength": 1},
+        "radio": {"type": "integer", "minimum": 1, "maximum": 10}, "label": {"type": "string", "minLength": 1},
+        "compatible_bands": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 5}},
+        "source": {"type": "string", "minLength": 10}, "notes": {"type": "string", "minLength": 5}
+      }
+    }},
+    "nets": {"type": "array", "minItems": 1, "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "frequency_mhz", "modulation"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,63}$"},
+        "frequency_mhz": {"type": "number", "minimum": 30, "maximum": 399.975},
+        "modulation": {"enum": ["AM", "FM"]}
+      }
+    }},
+    "assignments": {"type": "array", "minItems": 1, "items": {
+      "type": "object", "additionalProperties": false, "required": ["group", "net"],
+      "properties": {"group": {"type": "string", "minLength": 1}, "net": {"type": "string", "minLength": 1}}
+    }},
+    "presets": {"type": "array", "minItems": 1, "items": {
+      "type": "object", "additionalProperties": false, "required": ["group", "radio", "channel", "net"],
+      "properties": {
+        "group": {"type": "string", "minLength": 1}, "radio": {"type": "integer", "minimum": 1, "maximum": 10},
+        "channel": {"type": "integer", "minimum": 1, "maximum": 100}, "net": {"type": "string", "minLength": 1}
+      }
+    }},
+    "radio_usage": {"type": "array", "minItems": 1, "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["group", "phase", "radio", "net"],
+      "properties": {
+        "group": {"type": "string", "minLength": 1}, "phase": {"type": "string", "minLength": 1},
+        "radio": {"type": "integer", "minimum": 1, "maximum": 10}, "net": {"type": "string", "minLength": 1}
+      }
+    }}
+  }
+}

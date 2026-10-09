@@ -31,6 +31,9 @@ the returned `.agents/skills/mission-functional-spec/SKILL.md`, produce the
 functional spec, register it, implement it, and submit verification evidence.
 The current agent runs skills; the CLI does not invoke a model. Evidence must
 match the accepted spec and artifact hashes. A local PASS cannot certify DCS.
+Ask about a comm-plan, present radio compatibility and usage over mission phases,
+and obtain user choices for support/launch platform, SAM and victory/failure
+conditions before implementation. Proposals and silence are not confirmation.
 
 ## Structured GitHub issues
 

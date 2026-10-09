@@ -20,7 +20,7 @@ def parser() -> argparse.ArgumentParser:
     commands = root.add_subparsers(dest="command", required=True)
     commands.add_parser("doctor")
     command = commands.add_parser("validate")
-    command.add_argument("--kind", choices=["mission", "functional-spec", "verification", "profile", "lesson", "issue", "publication"], required=True)
+    command.add_argument("--kind", choices=["mission", "functional-spec", "verification", "comm-plan", "profile", "lesson", "issue", "publication"], required=True)
     command.add_argument("--file", type=Path, required=True)
     command.add_argument("--profile", type=Path)
     command = commands.add_parser("miz")

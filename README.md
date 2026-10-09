@@ -37,7 +37,7 @@ or a secret manager. See [publication boundaries](docs/privacy.md).
 
 ```text
 dcs-harness doctor
-dcs-harness validate --kind mission|profile|lesson|issue|publication|functional-spec|verification --file <document>
+dcs-harness validate --kind mission|profile|lesson|issue|publication|functional-spec|verification|comm-plan --file <document>
 dcs-harness validate --kind mission --file <document> --profile <profile>
 dcs-harness miz check --file <mission.miz>
 dcs-harness lua check --file <script.lua>
@@ -70,6 +70,13 @@ Start returns `next_skill: mission-functional-spec`. The current coding agent
 reads that skill and produces the functional spec before building the mission;
 the CLI does not launch an LLM or contain a general mission generator. See the
 synthetic functional-spec example. Unresolved questions block implementation.
+Functional-spec version 1.1 also requires user decisions on communications,
+support aircraft/launch platform, air defence and victory conditions. Proposed
+choices block the transition. For a comm-plan, first list each radio's compatible
+bands, then show active frequencies over mission phases. The implementation
+adapter changes presets and flight/support frequencies and checks the archive.
+See [communications](docs/communications.md) for supported aircraft and limits.
+Earlier 1.0 specs need review in a new run before further work.
 Keep the source artifact outside the run's reserved `mission.miz` destination.
 
 Accepted specs and registered archives have immutable hashes. Evidence must

@@ -50,6 +50,39 @@ class WorkflowTests(unittest.TestCase):
         with self.assertRaises(HarnessError):
             workflow.start(self.root, self.id, self.brief)
 
+    def test_proposed_design_and_unanswered_comm_plan_block_implementation(self):
+        workflow.start(self.root, self.id, self.brief)
+        self.spec['design_decisions'][2].update(status='proposed', source='agent-proposal')
+        self.save_spec()
+        with self.assertRaisesRegex(HarnessError, 'DESIGN_REVIEW_REQUIRED'):
+            workflow.specification(self.root, self.id, self.specfile)
+        self.spec['design_decisions'][2].update(status='confirmed', source='user-confirmation')
+        self.spec['communications'].update(decision='pending', source='unanswered')
+        self.save_spec()
+        with self.assertRaisesRegex(HarnessError, 'COMM_PLAN_DECISION_REQUIRED'):
+            workflow.specification(self.root, self.id, self.specfile)
+
+    def test_agent_proposal_cannot_be_confirmed_without_user_source(self):
+        self.spec['design_decisions'][2]['source'] = 'agent-proposal'
+        self.assertTrue(validate('functional-spec', self.spec))
+
+    def test_enabled_plan_needs_application_criteria_and_archive_checks(self):
+        from test_communications import fixture
+        from unittest.mock import patch
+        _, plan = fixture()
+        self.spec['communications'].update(decision='enabled', plan=plan)
+        self.assertTrue(validate('functional-spec', self.spec))
+        for key in ('COMM-PRESETS', 'COMM-FREQUENCIES'):
+            self.spec['criteria'].append({'id': key, 'level': 'local', 'statement': 'Communication configuration matches approved plan.'})
+        self.assertEqual(validate('functional-spec', self.spec), [])
+        self.save_spec()
+        workflow.start(self.root, self.id, self.brief)
+        workflow.specification(self.root, self.id, self.specfile)
+        with patch('dcs_harness.communications.check_archive', side_effect=HarnessError('COMM_PLAN_NOT_APPLIED')) as checked:
+            with self.assertRaisesRegex(HarnessError, 'COMM_PLAN_NOT_APPLIED'):
+                workflow.implementation(self.root, self.id, self.miz)
+            checked.assert_called_once()
+
     def test_order_open_questions_and_changed_brief_block(self):
         workflow.start(self.root, self.id, self.brief)
         with self.assertRaises(HarnessError):
