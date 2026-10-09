@@ -1,6 +1,6 @@
 # Navigation and identification during design
 
-Functional-spec 1.6 requires `navigation` even when no radio plan is requested.
+Functional-spec 1.7 requires `navigation` even when no radio plan is requested.
 Comm-plan 1.1 contains the identical record so briefing, kneeboards and mission
 configuration share the same choices. A proposed navigation plan blocks spec
 registration. User approval can cover the complete displayed plan; unresolved

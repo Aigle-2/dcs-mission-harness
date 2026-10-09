@@ -39,6 +39,9 @@ match the accepted spec and artifact hashes. A local PASS cannot certify DCS.
 Ask about a comm-plan, present radio compatibility and usage over mission phases,
 and obtain user choices for support/launch platform, SAM and victory/failure
 conditions before implementation. Proposals and silence are not confirmation.
+During initial design, review calendar date and whether the year restricts aircraft
+and armaments. Record temporal choices, verify the saved date and, when enabled,
+historical availability by variant/country; review any exceptions before build.
 Label agent-selected mission parameters `[Proposed]` in the final readable spec,
 including delegated choices. Label user-supplied/confirmed choices `[Decided]`.
 Record extra choices as parameter:<slug> design topics; unconfirmed proposals block.

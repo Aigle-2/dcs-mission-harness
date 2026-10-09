@@ -64,7 +64,7 @@ def start(root: Path, run_id: str, brief: Path) -> dict:
                   next_skill="mission-functional-spec",
                   skill_file=".agents/skills/mission-functional-spec/SKILL.md",
                   files={"brief": f"runs/{run_id}/brief.md", "spec": f"runs/{run_id}/functional-spec.yaml"},
-                  agent_action="Read the skill; review communications, support, air defence, victory, aircraft/loadouts and any carrier escort/placement. Apply veteran AI defaults and verify exact installed unit types.")
+                  agent_action="Read the skill; review date and year-based aircraft/weapon restrictions, communications, support, air defence, victory, aircraft/loadouts and any carrier escort/placement. Apply veteran AI defaults and verify exact installed unit types.")
 
 
 def status(root: Path, run_id: str) -> dict:
@@ -78,6 +78,8 @@ def status(root: Path, run_id: str) -> dict:
 def specification(root: Path, run_id: str, file: Path) -> dict:
     spec = load_document(file)
     require_valid("functional-spec", spec)
+    if spec['temporal']['status'] == 'proposed':
+        raise HarnessError('TEMPORAL_REVIEW_REQUIRED', 'BLOCKED')
     if spec["open_questions"]:
         raise HarnessError("SPEC_HAS_OPEN_QUESTIONS", "BLOCKED")
     if any(d["status"] == "proposed" for d in spec["design_decisions"]):
@@ -135,6 +137,8 @@ def unchanged_spec(path: Path, state: dict) -> dict:
     spec = load_document(path / "spec.accepted.json")
     # Historical runs remain readable but cannot bypass the new review gate.
     require_valid("functional-spec", spec)
+    if spec['temporal']['status'] == 'proposed':
+        raise HarnessError('TEMPORAL_REVIEW_REQUIRED', 'BLOCKED')
     if any(d["status"] == "proposed" for d in spec["design_decisions"]) or spec["communications"]["decision"] == "pending":
         raise HarnessError("DESIGN_REVIEW_REQUIRED", "BLOCKED")
     if any(f["status"] == "proposed" for f in spec["support_flights"]):

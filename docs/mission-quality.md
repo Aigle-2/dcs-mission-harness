@@ -1,11 +1,38 @@
 # Mission configuration and DCS feedback
 
-Functional-spec 1.6 includes recorded aircraft/loadout, battlegroup and placement
+Functional-spec 1.7 includes recorded date/era, aircraft/loadout, battlegroup and placement
 decisions, explicit carrier/AWACS presence and an AI skill policy. Proposed choices
 block registration. Carrier choices cannot be marked inapplicable when a carrier
 is present. Aircraft/loadout review is mandatory, including for unarmed training.
 Veteran means `High` under harness policy; user overrides require a user source.
 Old runs remain historical; use a new run to review and implement a revision.
+
+## Calendar date and historical availability
+
+Initial design asks for year/month/day and separately whether the year restricts
+aircraft and armaments. `temporal` records the quoted ISO date, `restrict_by_year`,
+status, source and evidence. Both choices appear in the readable review; proposed
+choices block registration. Dates are checked as real calendar dates, including
+leap years. Never infer a historical policy from the year alone.
+
+Always include local criterion `MISSION-DATE`: inspect the final archive's saved
+calendar date and compare it to the accepted spec, independently of start time.
+If `restrict_by_year` is true, include local `ERA-AVAILABILITY`. Keep a private
+table of exact aircraft variants and weapons, operators/countries, availability
+at the selected date, sources and any user-approved exceptions. Include player,
+hostile and support aircraft and applicable rearm stock. Catalog availability or
+presence in installed module code proves DCS compatibility, not historical use.
+Unknown or conflicting availability requires source research or user clarification;
+do not invent dates, silently substitute equipment or mark an unknown check PASS.
+Record reviewed exceptions as `parameter:era-exception-<slug>` decisions.
+
+Verify the target editor/server's actual year filters and inventory behavior when
+applicable; a mission date alone is not evidence of enforcement. The harness has
+no universal historical catalog or automatic era filter. The agent implements
+the accepted limits and supplies hash-bound evidence; runtime rearm enforcement,
+when required, needs a separate runtime/client criterion. When restrictions are
+off, module compatibility still applies. New mandatory fields require old specs
+to be reviewed under 1.7 before continuing; do not invent retrospective approval.
 
 ## Visible decision provenance
 
@@ -29,7 +56,7 @@ assumptions; that is not a way to conceal a mission-setting proposal.
 
 `mission review --run <id> --file <spec>` writes a private
 `functional-spec.review.md` appendix with derived tags, choices, sources and
-evidence for design topics, navigation, support profiles, communications and liveries.
+evidence for design topics, date/era, navigation, support profiles, communications and liveries.
 Include the appendix in the final readable spec alongside full plan details.
 Review generation can run with proposed choices, leaves the run in
 SPECIFICATION_PENDING, and does not imply acceptance or a human reply. The

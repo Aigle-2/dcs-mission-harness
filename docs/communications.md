@@ -1,6 +1,6 @@
 # Communications and design review
 
-Functional specs use version 1.6. Support aircraft and launch platform, air
+Functional specs use version 1.7. Support aircraft and launch platform, air
 defence composition, and victory/failure conditions need recorded user choices.
 An explicit request already supplies a choice; an agent's proposal does not.
 Features absent from the scenario may be marked not applicable. Ask whether a

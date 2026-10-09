@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+from datetime import date
 from importlib.resources import files
 from pathlib import Path
 
@@ -62,6 +63,13 @@ def validate(kind: str, data: dict) -> list[dict]:
         if len(set(ids)) != len(ids):
             errors.append({"code": "DUPLICATE_INTEGRATION", "location": ["integrations"]})
     if kind == "functional-spec" and not errors:
+        temporal = data['temporal']
+        try:
+            date.fromisoformat(temporal['date'])
+        except ValueError:
+            errors.append({'code': 'INVALID_MISSION_DATE', 'location': ['temporal', 'date']})
+        if temporal['status'] == 'confirmed' and temporal['source'] == 'agent-proposal':
+            errors.append({'code': 'USER_CONFIRMATION_REQUIRED', 'location': ['temporal']})
         errors.extend({**error, "location": ["mission", *error["location"]]}
                       for error in validate("mission", data["mission"]))
         ids = [criterion["id"] for criterion in data["criteria"]]
@@ -91,7 +99,9 @@ def validate(kind: str, data: dict) -> list[dict]:
         if configuration["ai_skill_source"] == "default-policy" and configuration["ai_skill"] != "High":
             errors.append({"code": "VETERAN_DEFAULT_REQUIRED", "location": ["configuration", "ai_skill"]})
         local_ids = {c["id"] for c in data["criteria"] if c["level"] == "local"}
-        required_checks = {"UNIT-TYPES", "AIRCRAFT-LOADOUTS", "AI-SKILL", "NAVIGATION"}
+        required_checks = {"UNIT-TYPES", "AIRCRAFT-LOADOUTS", "AI-SKILL", "NAVIGATION", "MISSION-DATE"}
+        if temporal['restrict_by_year']:
+            required_checks.add('ERA-AVAILABILITY')
         if configuration["carrier_present"]:
             required_checks.update({"CARRIER-GROUP", "CARRIER-PLACEMENT"})
         if configuration["awacs_present"]:
